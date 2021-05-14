@@ -1,0 +1,29 @@
+image: docker:latest
+
+stages:
+  - test
+
+services:
+  - docker:dind
+
+django_tests:
+  stage: test
+  tags:
+    - dind
+  only:
+    - /^develop|master$/
+  script:
+    - apk add --update py-pip
+    - pip install docker-compose
+    - docker-compose run backend python manage.py test
+
+lint:
+  stage: test
+  allow_failure: true
+  tags:
+    - dind
+  script:
+    - apk add --update py-pip
+    - pip install -r requirements.txt
+    - pip install prospector
+    - prospector

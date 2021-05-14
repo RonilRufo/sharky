@@ -1,0 +1,15 @@
+# Core libs                                                                                        
+Pillow
+psycopg2
+Django
+django-cors-headers
+graphene-django
+django-graphql-extensions
+django-graphql-auth
+requests
+
+# dev
+django-extensions
+
+# testing
+factory-boy

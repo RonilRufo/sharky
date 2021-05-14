@@ -1,0 +1,17 @@
+database:
+  image: postgres
+  environment:
+    - POSTGRES_USER=sharky
+    - POSTGRES_PASSWORD=sharky
+backend:
+  build: .
+  command: bash /sharky/server/django_devserver.sh
+  volumes:
+  - .:/sharky
+  links:
+  - database
+  ports:
+  - "8000:8000"
+  environment:
+    DB_HOST: database
+    PYTHONUNBUFFERED: 1

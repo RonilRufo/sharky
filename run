@@ -1,0 +1,20 @@
+#!/bin/bash
+
+RETVAL=0
+
+case "$1" in
+    "")
+      echo Usage: $0 ***** <-TODO
+      RETVAL=1
+      ;;
+    shell)
+      docker exec -it sharky_django_1 /bin/bash -c "python /sharky/manage.py shell_plus"
+      ;;
+    test)
+      docker exec -it sharky_django_1 /bin/bash -c "python /sharky/manage.py test"
+      ;;
+    runserver)
+      docker exec -it sharky_django_1 /bin/bash -c "python /sharky/manage.py runserver 0.0.0.0:8080"
+esac
+
+exit $RETVAL
