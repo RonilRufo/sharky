@@ -9,6 +9,8 @@ from django.db import models
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 
+from sharky.mixins import UUIDPrimaryKeyMixin
+
 
 def get_placeholder_url(request=None) -> str:
     """
@@ -56,14 +58,7 @@ class EmailUserManager(BaseUserManager):
         return self._create_user(email, password, is_superuser=True, **kwargs)
 
 
-class EmailUser(AbstractBaseUser, PermissionsMixin):
-    GENDER_CHOICES = [
-        ('f', 'Female'),
-        ('m', 'Male'),
-    ]
-
-    # Use a UUID for a primary key
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+class EmailUser(AbstractBaseUser, PermissionsMixin, UUIDPrimaryKeyMixin):
 
     # User information
     email = models.EmailField(_('email address'), unique=True)
