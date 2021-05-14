@@ -310,7 +310,7 @@ WSGI_APPLICATION = 'sharky.wsgi.application'
 
 # i18n
 USE_TZ = True
-TIME_ZONE = 'America/Denver'
+TIME_ZONE = 'Asia/Manila'
 LANGUAGE_CODE = 'en-us'
 USE_I18N = True
 USE_L10N = True
