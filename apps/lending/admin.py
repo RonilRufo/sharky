@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.contrib.humanize.templatetags.humanize import intcomma
+from django.utils.translation import gettext_lazy as _
 
 from . import models
 
@@ -52,8 +54,25 @@ class LoanAdmin(admin.ModelAdmin):
     Admin view for :model:`lending.Loan`
     """
     list_display = (
-        "borrower", "amount", "interest_rate", "term", "loan_date", "is_completed",
+        "borrower",
+        "amount_display",
+        "interest_rate_display",
+        "interest_amount",
+        "term",
+        "loan_date",
+        "is_completed",
     )
     list_filter = ("borrower", "is_completed")
     search_fields = ("borrower__first_name", "borrower_last_name")
     inlines = [LoanSourceAdminInline, AmortizationAdminInline]
+
+    def amount_display(self, obj):
+        return intcomma(obj.amount)
+    amount_display.short_description = _("Amount")
+
+    def interest_amount(self, obj):
+        return intcomma(obj.interest_amount)
+
+    def interest_rate_display(self, obj):
+        return f"{obj.interest_rate}%"
+    interest_rate_display.short_description = _("Interest Rate")
