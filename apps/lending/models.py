@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.contrib.humanize.templatetags.humanize import intcomma
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -78,6 +80,13 @@ class CapitalSource(UUIDPrimaryKeyMixin, TimeStampedModel):
     def __str__(self) -> str:
         return self.name
 
+    @property
+    def is_savings(self) -> bool:
+        """
+        Returns whether the source is from the savings account or not.
+        """
+        return self.source == self.SOURCES.savings
+
 
 class Loan(UUIDPrimaryKeyMixin, TimeStampedModel):
     """
@@ -120,6 +129,60 @@ class Loan(UUIDPrimaryKeyMixin, TimeStampedModel):
     def __str__(self) -> str:
         amount = intcomma(self.amount)
         return f"{self.borrower} | {amount} | {self.loan_date}"
+
+    @property
+    def principal_amount(self) -> Decimal:
+        """
+        Returns the principal amount with respect to the term duration.
+        """
+        amount = self.amount / self.term
+        return round(amount, 2)
+
+    @property
+    def interest_amount(self) -> Decimal:
+        """
+        The amount gained from the interest rate of the loan.
+        """
+        income = self.amount * (self.interest_rate / 100)
+        return round(income, 2)
+
+    @property
+    def total_interest(self) -> Decimal:
+        """
+        Returns the total amount gained from the interest rate of the loan when all
+        payments are made.
+        """
+        total = self.interest_amount * self.term
+        return round(total, 2)
+
+    @property
+    def total_amount(self) -> Decimal:
+        """
+        The sum of the principal amount and all interests gained within the term.
+        """
+        total = self.interest_amount + self.total_interest
+        return round(total, 2)
+
+    @property
+    def interest_gained(self) -> Decimal:
+        """
+        Returns the total interest gained depending on the sources of the loan.
+        """
+        total_interest_from_sources = 0
+        for source in self.sources.all():
+            total_interest_from_sources += source.interest_amount
+
+        gained_amount = self.total_interest - total_interest_from_sources
+        return round(gained_amount, 2)
+
+    @property
+    def total_interest_gained(self) -> Decimal:
+        """
+        Returns the total interest gained with respect to the sources and the term
+        duration.
+        """
+        total = self.interest_gained * self.term
+        return round(total, 2)
 
 
 class LoanSource(UUIDPrimaryKeyMixin, TimeStampedModel):
@@ -178,6 +241,19 @@ class LoanSource(UUIDPrimaryKeyMixin, TimeStampedModel):
 
     def __str__(self) -> str:
         return f"{self.loan} -> {self.capital_source}"
+
+    @property
+    def interest_amount(self) -> Decimal:
+        """
+        The amount gained from the interest rate of the selected source. This will only
+        apply to credit cards and cash loans. If the source comes from a savings
+        account, this will return 0.
+        """
+        if self.capital_source.is_savings:
+            return 0
+
+        income = self.amount * (self.interest_rate / 100)
+        return round(income, 2)
 
 
 class Amortization(UUIDPrimaryKeyMixin, TimeStampedModel):
