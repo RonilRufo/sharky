@@ -6,6 +6,7 @@ django-cors-headers
 graphene-django
 django-graphql-extensions
 django-graphql-auth
+django-model-utils
 requests
 
 # dev
