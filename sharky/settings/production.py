@@ -42,6 +42,7 @@ INSTALLED_APPS = (
 
     # Local Apps
     'apps.accounts',
+    "apps.lending",
 )
 
 # Domain configuration
