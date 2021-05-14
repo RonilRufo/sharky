@@ -172,7 +172,7 @@ class Loan(UUIDPrimaryKeyMixin, TimeStampedModel):
         for source in self.sources.all():
             total_interest_from_sources += source.interest_amount
 
-        gained_amount = self.total_interest - total_interest_from_sources
+        gained_amount = self.interest_amount - total_interest_from_sources
         return round(gained_amount, 2)
 
     @property
