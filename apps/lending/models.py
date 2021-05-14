@@ -140,6 +140,8 @@ class LoanSource(UUIDPrimaryKeyMixin, TimeStampedModel):
     interest_rate = models.DecimalField(
         max_digits=5,
         decimal_places=2,
+        blank=True,
+        null=True,
         help_text=_(
             "The interest rate from the bank if the source came from credit card or "
             "cash loan."
