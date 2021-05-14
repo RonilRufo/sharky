@@ -67,12 +67,20 @@ class LoanAdmin(admin.ModelAdmin):
     inlines = [LoanSourceAdminInline, AmortizationAdminInline]
 
     def amount_display(self, obj):
-        return intcomma(obj.amount)
+        amount = int(obj.amount) if obj.amount % 1 == 0 else obj.amount
+        return intcomma(amount)
     amount_display.short_description = _("Amount")
 
     def interest_amount(self, obj):
-        return intcomma(obj.interest_amount)
+        amount = (
+            int(obj.interest_amount)
+            if obj.interest_amount % 1 == 0 else obj.interest_amount
+        )
+        return intcomma(amount)
 
     def interest_rate_display(self, obj):
-        return f"{obj.interest_rate}%"
+        amount = (
+            int(obj.interest_rate) if obj.interest_rate % 1 == 0 else obj.interest_rate
+        )
+        return f"{amount}%"
     interest_rate_display.short_description = _("Interest Rate")
