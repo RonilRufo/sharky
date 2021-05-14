@@ -36,8 +36,15 @@ class Borrower(UUIDPrimaryKeyMixin, TimeStampedModel):
         verbose_name_plural = _("Borrowers")
         ordering = ("last_name", "first_name")
 
-    def __str__(self) -> str:
+    @property
+    def full_name(self) -> str:
+        """
+        Returns the full name of the borrower.
+        """
         return f"{self.first_name} {self.last_name}"
+
+    def __str__(self) -> str:
+        return self.full_name
 
 
 class CapitalSource(UUIDPrimaryKeyMixin, TimeStampedModel):
