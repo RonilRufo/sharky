@@ -32,6 +32,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.postgres',
+    "django.contrib.humanize",
 
     # 3rd party apps
     'django_extensions',
