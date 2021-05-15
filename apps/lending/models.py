@@ -1,8 +1,10 @@
+from dateutil.relativedelta import relativedelta
 from decimal import Decimal
 
 from django.contrib.humanize.templatetags.humanize import intcomma
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
@@ -117,6 +119,9 @@ class Loan(UUIDPrimaryKeyMixin, TimeStampedModel):
     day_deadline = models.PositiveSmallIntegerField(
         validators=[MaxValueValidator(31)],
         help_text=_("The day of the month in which the due date will fall."),
+    )
+    first_payment_date = models.DateField(
+        default=timezone.now() + relativedelta(months=1)
     )
     is_completed = models.BooleanField(default=False)
     loan_date = models.DateField()
