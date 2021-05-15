@@ -7,6 +7,8 @@ from django.views.decorators.csrf import csrf_exempt
 
 from graphql_extensions.views import GraphQLView
 
+from . import views
+
 
 admin.site.site_title = admin.site.index_title = "sharky backend"
 admin.site.site_header = mark_safe('<img src="{img}" alt="{alt}"/>'.format(
@@ -18,6 +20,8 @@ admin.site.site_header = mark_safe('<img src="{img}" alt="{alt}"/>'.format(
 urlpatterns = [
 
     path("graphql/", csrf_exempt(GraphQLView.as_view(graphiql=True))),
+
+    path("dashboard/", views.Dashboard.as_view(), name="dashboard"),
 
     # Administration
     path('admin/', admin.site.urls),
