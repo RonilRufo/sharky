@@ -129,6 +129,30 @@ class Loan(UUIDPrimaryKeyMixin, TimeStampedModel):
         return f"{self.borrower} | {amount} | {self.loan_date}"
 
     @property
+    def amortization_amount_due(self) -> Decimal:
+        """
+        The amount due for each amortization for this loan.
+        """
+        amortization_count = (
+            self.term if self.is_payment_schedule_monthly else self.term * 2
+        )
+        principal = self.amount / amortization_count
+        interest = (
+            self.interest_amount
+            if self.is_payment_schedule_monthly
+            else self.interest_amount / 2
+        )
+        total = principal + interest
+        return round(total, 2)
+
+    @property
+    def is_payment_schedule_monthly(self) -> bool:
+        """
+        Returns whether the payment schedule is monthly or not.
+        """
+        return self.payment_schedule == self.PAYMENT_SCHEDULES.monthly
+
+    @property
     def principal_amount(self) -> Decimal:
         """
         Returns the principal amount with respect to the term duration.
