@@ -64,6 +64,8 @@ class LoanAdmin(admin.ModelAdmin):
         "interest_gained",
         "term",
         "next_payment_due_date",
+        "remaining_months",
+        "total_principal_receivables",
         "is_completed",
     )
     list_filter = ("borrower", "is_completed")
@@ -98,6 +100,15 @@ class LoanAdmin(admin.ModelAdmin):
 
     def next_payment_due_date(self, obj):
         return obj.next_payment_due_date if obj.next_payment_due_date else "N/A"
+
+    def remaining_months(self, obj):
+        return obj.remaining_months
+
+    def total_principal_receivables(self, obj):
+        """
+        Returns the total principal receivables of the loan.
+        """
+        return obj.total_principal_receivables
 
     def generate_amortization(self, request, queryset):
         """

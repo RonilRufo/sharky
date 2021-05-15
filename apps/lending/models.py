@@ -1,4 +1,5 @@
 import datetime
+import math
 from decimal import Decimal
 
 from django.contrib.humanize.templatetags.humanize import intcomma
@@ -10,6 +11,7 @@ from model_utils import Choices
 from model_utils.models import TimeStampedModel
 
 from sharky.mixins import UUIDPrimaryKeyMixin
+from .utils import month_difference
 
 
 class Bank(UUIDPrimaryKeyMixin):
@@ -214,6 +216,32 @@ class Loan(UUIDPrimaryKeyMixin, TimeStampedModel):
         """
         total = self.interest_gained * self.term
         return round(total, 2)
+
+    @property
+    def remaining_months(self) -> int:
+        """
+        Returns the remaining months until all payments for the loan is completed.
+        """
+        if self.is_payment_schedule_monthly:
+            return self.amortizations.filter(paid_date__isnull=True).count()
+        else:
+            next_due_date = self.next_payment_due_date
+            last_amortization = self.amortizations.filter(paid_date__isnull=True).last()
+            return month_difference(last_amortization.due_date, next_due_date)
+
+    @property
+    def total_principal_receivables(self) -> Decimal:
+        """
+        Returns the total principal receivables for the selected loan. This will only
+        apply to loans having savings account as their source.
+        """
+        amount = 0
+        if self.sources.filter(
+            capital_source__source=CapitalSource.SOURCES.savings
+        ).exists():
+            amount = (self.amount / self.term) * self.remaining_months
+
+        return math.floor(amount)
 
 
 class LoanSource(UUIDPrimaryKeyMixin, TimeStampedModel):
