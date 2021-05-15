@@ -58,6 +58,7 @@ class LoanAdmin(admin.ModelAdmin):
         "amount_display",
         "interest_rate_display",
         "interest_amount",
+        "interest_gained",
         "term",
         "loan_date",
         "is_completed",
@@ -84,3 +85,10 @@ class LoanAdmin(admin.ModelAdmin):
         )
         return f"{amount}%"
     interest_rate_display.short_description = _("Interest Rate")
+
+    def interest_gained(self, obj):
+        amount = (
+            int(obj.interest_gained)
+            if obj.interest_gained % 1 == 0 else obj.interest_gained
+        )
+        return intcomma(amount)
