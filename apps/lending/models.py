@@ -201,11 +201,7 @@ class Loan(UUIDPrimaryKeyMixin, TimeStampedModel):
         """
         Returns the total interest gained depending on the sources of the loan.
         """
-        total_interest_from_sources = 0
-        for source in self.sources.all():
-            total_interest_from_sources += source.interest_amount
-
-        gained_amount = self.interest_amount - total_interest_from_sources
+        gained_amount = self.interest_amount - self.source.interest_amount
         return round(gained_amount, 2)
 
     @property
@@ -236,9 +232,7 @@ class Loan(UUIDPrimaryKeyMixin, TimeStampedModel):
         apply to loans having savings account as their source.
         """
         amount = 0
-        if self.sources.filter(
-            capital_source__source=CapitalSource.SOURCES.savings
-        ).exists():
+        if self.source and self.source.capital_source.is_savings:
             amount = (self.amount / self.term) * self.remaining_months
 
         return math.floor(amount)
@@ -248,9 +242,9 @@ class LoanSource(UUIDPrimaryKeyMixin, TimeStampedModel):
     """
     Stores further information about the source of the capital money used in a loan.
     """
-    loan = models.ForeignKey(
+    loan = models.OneToOneField(
         "lending.Loan",
-        related_name="sources",
+        related_name="source",
         on_delete=models.CASCADE,
     )
     capital_source = models.ForeignKey(
