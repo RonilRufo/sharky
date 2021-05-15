@@ -1,3 +1,4 @@
+import datetime
 from decimal import Decimal
 
 from django.contrib.humanize.templatetags.humanize import intcomma
@@ -144,6 +145,14 @@ class Loan(UUIDPrimaryKeyMixin, TimeStampedModel):
         )
         total = principal + interest
         return round(total, 2)
+
+    @property
+    def next_payment_due_date(self) -> datetime.date:
+        """
+        Returns the next payment due date based on the unpaid amortization.
+        """
+        amortization = self.amortizations.filter(paid_date__isnull=True).first()
+        return amortization.due_date if amortization else None
 
     @property
     def is_payment_schedule_monthly(self) -> bool:

@@ -63,7 +63,7 @@ class LoanAdmin(admin.ModelAdmin):
         "interest_amount",
         "interest_gained",
         "term",
-        "loan_date",
+        "next_payment_due_date",
         "is_completed",
     )
     list_filter = ("borrower", "is_completed")
@@ -95,6 +95,9 @@ class LoanAdmin(admin.ModelAdmin):
             if obj.interest_gained % 1 == 0 else obj.interest_gained
         )
         return intcomma(amount)
+
+    def next_payment_due_date(self, obj):
+        return obj.next_payment_due_date if obj.next_payment_due_date else "N/A"
 
     def generate_amortization(self, request, queryset):
         """
