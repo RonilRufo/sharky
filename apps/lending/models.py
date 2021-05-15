@@ -1,4 +1,3 @@
-from dateutil.relativedelta import relativedelta
 from decimal import Decimal
 
 from django.contrib.humanize.templatetags.humanize import intcomma
@@ -116,13 +115,7 @@ class Loan(UUIDPrimaryKeyMixin, TimeStampedModel):
         choices=PAYMENT_SCHEDULES,
         default=PAYMENT_SCHEDULES.monthly,
     )
-    day_deadline = models.PositiveSmallIntegerField(
-        validators=[MaxValueValidator(31)],
-        help_text=_("The day of the month in which the due date will fall."),
-    )
-    first_payment_date = models.DateField(
-        default=timezone.now() + relativedelta(months=1)
-    )
+    first_payment_date = models.DateField(default=timezone.now)
     is_completed = models.BooleanField(default=False)
     loan_date = models.DateField()
 
