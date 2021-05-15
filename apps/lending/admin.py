@@ -1,4 +1,6 @@
-from django.contrib import admin
+from dateutil.relativedelta import relativedelta
+
+from django.contrib import admin, messages
 from django.contrib.humanize.templatetags.humanize import intcomma
 from django.utils.translation import gettext_lazy as _
 
@@ -53,6 +55,7 @@ class LoanAdmin(admin.ModelAdmin):
     """
     Admin view for :model:`lending.Loan`
     """
+    actions = ["generate_amortization"]
     list_display = (
         "borrower",
         "amount_display",
@@ -92,3 +95,36 @@ class LoanAdmin(admin.ModelAdmin):
             if obj.interest_gained % 1 == 0 else obj.interest_gained
         )
         return intcomma(amount)
+
+    def generate_amortization(self, request, queryset):
+        """
+        Generates the amortization for the selected loans.
+        """
+        for loan in queryset:
+            # The number of amortization will depend on whether the payment schedule is
+            # monthly or bi-monthly. If monthly, then the number of amortization will be
+            # equal to the loan's term. If bi-monthly, it means there will be 2 payments
+            # for each month which should be equal to twice the value of term.
+            count = loan.term if loan.is_payment_schedule_monthly else loan.term * 2
+
+            amortization = []
+            due_date = loan.first_payment_date
+            for schedule in range(count):
+                amortization.append(
+                    models.Amortization(
+                        loan=loan,
+                        amount_due=loan.amortization_amount_due,
+                        due_date=due_date,
+                    )
+                )
+
+                if loan.is_payment_schedule_monthly:
+                    due_date += relativedelta(months=1)
+                else:
+                    due_date += relativedelta(days=15)
+
+            if len(amortization) > 0:
+                models.Amortization.objects.bulk_create(amortization)
+
+        messages.success(request, _("Successfully generated amortization."))
+    generate_amortization.short_description = _("Generate Loan Amortization")
