@@ -121,6 +121,28 @@ class LoanQuerySet(models.QuerySet):
         ).aggregate(total=Sum("interest"))
         return math.floor(amount["total"]) if amount["total"] else 0
 
+    def total_principal_receivables(self):
+        """
+        Returns the total principal amount receivables for the selected loans.
+        """
+        amount = self.annotate(
+            principal=Case(
+                When(
+                    source__capital_source__source=CapitalSource.SOURCES.savings,
+                    payment_schedule="monthly",
+                    then=F("amount") / F("term"),
+                ),
+                When(
+                    source__capital_source__source=CapitalSource.SOURCES.savings,
+                    payment_schedule="bi_monthly",
+                    then=(F("amount") / F("term")) * 2,
+                ),
+                default=Value(0),
+                output_field=DecimalField(),
+            )
+        ).aggregate(total=Sum("principal"))
+        return math.floor(amount["total"]) if amount["total"] else 0
+
 
 class Loan(UUIDPrimaryKeyMixin, TimeStampedModel):
     """
