@@ -15,6 +15,14 @@ class Dashboard(LoginRequiredMixin, TemplateView):
     """
     template_name = "index.html"
 
+    def get_past_due_amortizations(self) -> int:
+        """
+        Returns the number of past due amortizations.
+        """
+        return Amortization.objects.filter(
+            due_date__lte=timezone.now(), paid_date__isnull=True
+        ).count()
+
     def get_active_loans(self) -> int:
         """
         Returns the number of active loans.
@@ -79,5 +87,6 @@ class Dashboard(LoginRequiredMixin, TemplateView):
             "active_loans": self.get_active_loans(),
             "current_month_earnings": self.get_earnings_for_current_month(),
             "total_principal_receivables": self.get_total_principal_receivables(),
+            "past_due_amortizations": self.get_past_due_amortizations(),
         })
         return context
