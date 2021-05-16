@@ -11,8 +11,8 @@
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                    <thead>
+                <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
+                    <thead class="table-primary">
                         <tr>
                             <th>Borrower</th>
                             <th>Loan Date</th>
@@ -26,11 +26,11 @@
                         {% for amortization in amortizations %}
                             <tr>
                                 <td>{{ amortization.loan.borrower }}</td>
-                                <td>{{ amortization.loan.loan_date|date:"m d, Y" }}</td>
+                                <td>{{ amortization.loan.loan_date|date:"M d, Y" }}</td>
                                 <td>{{ amortization.loan.source.capital_source.get_source_display }}</td>
                                 <td>{{ amortization.payment_stage }}</td>
-                                <td>{{ amortization.amount_due|intcomma }}</td>
-                                <td>{{ amortization.due_date|date:"m d, Y" }}</td>
+                                <td>{{ amortization.amount_due|floatformat:0|intcomma }}</td>
+                                <td>{{ amortization.due_date|date:"M d, Y" }}</td>
                             </tr>
                         {% endfor %}
                     </tbody>
