@@ -31,10 +31,13 @@ class EarningsGraph(View):
             labels.append(loan_date.strftime("%b %Y"))
 
             loan_ids = Amortization.objects.filter(
+                ~Q(amort_type=Amortization.AMORTIZATION_TYPES.principal_only),
                 due_date__month=loan_date.month,
                 due_date__year=loan_date.year
             ).values_list("loan", flat=True).distinct()
-            graph_data.append(Loan.objects.filter(id__in=loan_ids).total_interest_earned())
+            graph_data.append(
+                Loan.objects.filter(id__in=loan_ids).total_interest_earned()
+            )
 
             loan_date += relativedelta(months=1)
 
