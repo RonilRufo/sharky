@@ -277,7 +277,10 @@ class Loan(UUIDPrimaryKeyMixin, TimeStampedModel):
         else:
             next_due_date = self.next_payment_due_date
             last_amortization = self.amortizations.filter(paid_date__isnull=True).last()
-            return month_difference(last_amortization.due_date, next_due_date)
+            if last_amortization:
+                return month_difference(last_amortization.due_date, next_due_date)
+
+            return 0
 
     @property
     def total_principal_receivables(self) -> Decimal:
