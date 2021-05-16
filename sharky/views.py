@@ -25,27 +25,12 @@ class Dashboard(LoginRequiredMixin, TemplateView):
         """
         Returns the earnings from all loans for the current month.
         """
-
+        now = timezone.now()
         loan_ids = Amortization.objects.filter(
-            due_date__month=timezone.now().month
+            due_date__month=now.month,
+            due_date__year=now.year
         ).values_list("loan", flat=True).distinct()
-        loans = Loan.objects.filter(id__in=loan_ids)
-        amount = loans.annotate(
-            interest=Case(
-                When(
-                    source__capital_source__source=CapitalSource.SOURCES.savings,
-                    then=F("amount") * (F("interest_rate") / 100)
-                ),
-                When(
-                    ~Q(source__capital_source__source=CapitalSource.SOURCES.savings),
-                    then=(
-                        F("amount") * (F("interest_rate") / 100) -
-                        F("source__amount") * (F("source__interest_rate") / 100)
-                    )
-                ),
-            )
-        ).aggregate(total=Sum("interest"))
-        return math.floor(amount["total"])
+        return Loan.objects.filter(id__in=loan_ids).total_interest_earned()
 
     def get_total_principal_receivables(self) -> int:
         """
