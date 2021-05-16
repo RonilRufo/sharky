@@ -3,6 +3,8 @@ Base settings, extended by the dev/staging/production settings.
 """
 
 import os
+from copy import deepcopy
+
 from django.utils.log import DEFAULT_LOGGING
 
 DEBUG = False
@@ -21,7 +23,7 @@ MIDDLEWARE = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'sharky.middleware.GraphQLAuthErrorMiddleware',
+    # 'sharky.middleware.GraphQLAuthErrorMiddleware',
 )
 
 INSTALLED_APPS = (
@@ -182,62 +184,8 @@ ALLOWED_HOSTS = [SITE_DOMAIN] + SITE_DOMAINS
 # NOTSET      0 [default]
 #
 # Messages which are less severe than the specified level will be ignored.
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': True,
-    'filters': DEFAULT_LOGGING['filters'],
-    'formatters': {
-        'default': {
-            '()': 'logging.Formatter',
-            'format': '[%(asctime)s] %(message)s',
-            'datefmt': '%Y-%m-%d %H:%M:%S',
-        },
-        'debug': {
-            '()': 'logging.Formatter',
-            'format': '[%(asctime)s] %(levelname)s - %(name)s: %(message)s',
-            'datefmt': '%Y-%m-%d %H:%M:%S',
-        },
-    },
-    'handlers': {
-        'console': {
-            'level': 'ERROR',
-            'class': 'logging.StreamHandler',
-            'formatter': 'default',
-            'filters': ['require_debug_false'],
-        },
-        'debug-console': {
-            'level': 'INFO',  # DEBUG level here is *extremely* noisy
-            'class': 'logging.StreamHandler',
-            'formatter': 'debug',
-            'filters': ['require_debug_true'],
-        },
-        'file': {
-            'level': 'ERROR',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'formatter': 'default',
-            'filename': '/var/log/sharky/django.log',
-            'maxBytes': 1000000,  # 1MB
-            'delay': True,
-        },
-    },
-    'loggers': {
-        '': {
-            'handlers': ['console', 'debug-console', 'file'],
-            'level': 'NOTSET',
-            'propagate': False,
-        },
-        'django': {
-            'handlers': ['console', 'debug-console', 'file'],
-            'level': 'NOTSET',
-            'propagate': False,
-        },
-        'django.request': {
-            'handlers': ['console', 'debug-console', 'file'],
-            'level': 'ERROR',
-            'propagate': False,
-        },
-    },
-}
+LOGGING = deepcopy(DEFAULT_LOGGING)
+LOGGING["loggers"]["django"]["handlers"] = ["console"]
 
 
 # Caching
