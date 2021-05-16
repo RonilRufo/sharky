@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% load humanize %}
+{% load static %}
+
+{% block content %}
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Past Due Amortization</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Borrower</th>
+                            <th>Loan Date</th>
+                            <th>Loan Source</th>
+                            <th>Payment Stage</th>
+                            <th>Amount Due</th>
+                            <th>Due Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for amortization in amortizations %}
+                            <tr>
+                                <td>{{ amortization.loan.borrower }}</td>
+                                <td>{{ amortization.loan.loan_date|date:"m d, Y" }}</td>
+                                <td>{{ amortization.loan.source.capital_source.get_source_display }}</td>
+                                <td>{{ amortization.payment_stage }}</td>
+                                <td>{{ amortization.amount_due|intcomma }}</td>
+                                <td>{{ amortization.due_date|date:"m d, Y" }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

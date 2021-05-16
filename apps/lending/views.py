@@ -1,10 +1,11 @@
 from dateutil.relativedelta import relativedelta
 
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count, Q
 from django.http import Http404
 from django.http.response import JsonResponse
 from django.utils import timezone
-from django.views.generic import View
+from django.views.generic import View, ListView
 
 from apps.lending.models import Amortization, CapitalSource, Loan
 
@@ -83,3 +84,16 @@ class LoanSourcesGraph(View):
                 "graph_data": graph_data,
             }
         )
+
+
+class PastDueList(LoginRequiredMixin, ListView):
+    """
+    Displays a list of amortization that are past due.
+    """
+
+    queryset = Amortization.objects.filter(
+        due_date__lte=timezone.now(),
+        paid_date__isnull=True,
+    )
+    template_name = "lending/amortization/past_due.html"
+    context_object_name = "amortizations"

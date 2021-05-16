@@ -373,3 +373,12 @@ class Amortization(UUIDPrimaryKeyMixin, TimeStampedModel):
     def __str__(self) -> str:
         amount_due = intcomma(self.amount_due)
         return f"{self.loan.borrower} | {amount_due} | {self.due_date}"
+
+    @property
+    def payment_stage(self) -> str:
+        """
+        Returns information on what stage is the current amortization on.
+        """
+        current = self.loan.amortizations.filter(due_date__lt=self.due_date).count() + 1
+        count = self.loan.amortizations.all().count()
+        return f"{current} of {count}"
