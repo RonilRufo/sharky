@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
 from django.utils.safestring import mark_safe
 from django.views.decorators.csrf import csrf_exempt
 
@@ -21,6 +21,7 @@ urlpatterns = [
 
     path("graphql/", csrf_exempt(GraphQLView.as_view(graphiql=True))),
 
+    path("lending/", include("apps.lending.urls")),
     path("dashboard/", views.Dashboard.as_view(), name="dashboard"),
 
     # Administration
