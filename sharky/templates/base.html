@@ -278,6 +278,10 @@
     <!-- Custom scripts for all pages-->
     <script src="{% static 'js/sb-admin-2.min.js' %}"></script>
 
+    <script type="text/javascript">
+        window.earningsGraphUrl = "{% url 'lending:earnings-graph' %}";
+    </script>
+
     {% block extra_js %}
     {% endblock %}
 
