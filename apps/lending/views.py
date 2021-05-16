@@ -26,7 +26,8 @@ class EarningsGraph(View):
         now = timezone.now()
         loan_date = now - relativedelta(months=5)
         labels = []
-        graph_data = []
+        interest_data = []
+        principal_data = []
         for i in range(12):
             labels.append(loan_date.strftime("%b %Y"))
 
@@ -35,8 +36,20 @@ class EarningsGraph(View):
                 due_date__month=loan_date.month,
                 due_date__year=loan_date.year
             ).values_list("loan", flat=True).distinct()
-            graph_data.append(
+            interest_data.append(
                 Loan.objects.filter(id__in=loan_ids).total_interest_earned()
+            )
+
+            principal_loan_ids = Amortization.objects.filter(
+                ~Q(amort_type=Amortization.AMORTIZATION_TYPES.interest_only),
+                loan__source__capital_source__source=CapitalSource.SOURCES.savings,
+                due_date__month=loan_date.month,
+                due_date__year=loan_date.year
+            ).values_list("loan", flat=True).distinct()
+            principal_data.append(
+                Loan.objects.filter(
+                    id__in=principal_loan_ids
+                ).total_principal_receivables()
             )
 
             loan_date += relativedelta(months=1)
@@ -44,7 +57,8 @@ class EarningsGraph(View):
         return JsonResponse(
             {
                 "labels": labels,
-                "graph_data": graph_data,
+                "interest_data": interest_data,
+                "principal_data": principal_data,
             }
         )
 
