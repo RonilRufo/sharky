@@ -17,7 +17,7 @@ class Bank(UUIDPrimaryKeyMixin):
     """
     Stores information about a bank.
     """
-    name = models.CharField(max_length=128)
+    name = models.CharField(max_length=128, unique=True)
     abbreviation = models.CharField(max_length=32, blank=True)
 
     class Meta:
