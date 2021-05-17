@@ -108,7 +108,12 @@ class LoanAdmin(admin.ModelAdmin):
         """
         Returns the total principal receivables of the loan.
         """
-        return obj.total_principal_receivables
+        amount = (
+            int(obj.total_principal_receivables)
+            if obj.total_principal_receivables % 1 == 0
+            else obj.total_principal_receivables
+        )
+        return intcomma(amount)
 
     def generate_amortization(self, request, queryset):
         """
