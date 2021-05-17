@@ -3,9 +3,6 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 from django.utils.safestring import mark_safe
-from django.views.decorators.csrf import csrf_exempt
-
-from graphql_extensions.views import GraphQLView
 
 from . import views
 
@@ -18,8 +15,6 @@ admin.site.site_header = mark_safe('<img src="{img}" alt="{alt}"/>'.format(
 
 
 urlpatterns = [
-
-    path("graphql/", csrf_exempt(GraphQLView.as_view(graphiql=True))),
 
     path("lending/", include("apps.lending.urls")),
     path("dashboard/", views.Dashboard.as_view(), name="dashboard"),
