@@ -3,7 +3,6 @@ import math
 from decimal import Decimal
 
 from django.contrib.humanize.templatetags.humanize import intcomma
-from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Case, F, Q, Sum, Value, When, DecimalField
 from django.utils import timezone
@@ -12,7 +11,6 @@ from model_utils import Choices
 from model_utils.models import TimeStampedModel
 
 from sharky.mixins import UUIDPrimaryKeyMixin
-from .utils import month_difference
 
 
 class Bank(UUIDPrimaryKeyMixin):
