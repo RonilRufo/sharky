@@ -304,7 +304,8 @@ class Loan(UUIDPrimaryKeyMixin, TimeStampedModel):
         value = (self.amount * Decimal("0.01")) + self.principal_amount
         self.amortizations.filter(paid_date__isnull=True).update(
             amount_due=value,
-            paid_date=timezone.now()
+            paid_date=timezone.now(),
+            is_preterminated=True,
         )
         self.is_completed = True
         self.save(update_fields=["is_completed"])
