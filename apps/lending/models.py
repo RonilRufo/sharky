@@ -291,6 +291,24 @@ class Loan(UUIDPrimaryKeyMixin, TimeStampedModel):
 
         return math.floor(amount)
 
+    def pre_terminate(self) -> None:
+        """
+        Terminates the loan before completing all amortizations. As a general rule, all
+        remaining amortization will be calculated again using a 1% interest rate. The
+        following formula will be used to recalculate amortization amount:
+
+        (loan amount * (1 / 100)) + (loan amount / term)
+
+        The value will be assigned to all remaining amortization of the loan.
+        """
+        value = (self.amount * Decimal("0.01")) + self.principal_amount
+        self.amortizations.filter(paid_date__isnull=True).update(
+            amount_due=value,
+            paid_date=timezone.now()
+        )
+        self.is_completed = True
+        self.save(update_fields=["is_completed"])
+
 
 class LoanSource(UUIDPrimaryKeyMixin, TimeStampedModel):
     """

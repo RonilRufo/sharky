@@ -55,9 +55,10 @@ class LoanAdmin(admin.ModelAdmin):
     """
     Admin view for :model:`lending.Loan`
     """
-    actions = ["generate_amortization"]
+    actions = ["generate_amortization", "pre_terminate"]
     list_display = (
         "borrower",
+        "loan_date",
         "amount_display",
         "interest_rate_display",
         "interest_amount",
@@ -69,7 +70,7 @@ class LoanAdmin(admin.ModelAdmin):
         "total_principal_receivables",
         "is_completed",
     )
-    list_filter = ("borrower", "is_completed")
+    list_filter = ("borrower", "payment_schedule", "is_completed")
     search_fields = ("borrower__first_name", "borrower_last_name")
     inlines = [LoanSourceAdminInline, AmortizationAdminInline]
 
@@ -148,3 +149,13 @@ class LoanAdmin(admin.ModelAdmin):
 
         messages.success(request, _("Successfully generated amortization."))
     generate_amortization.short_description = _("Generate Loan Amortization")
+
+    def pre_terminate(self, request, queryset):
+        """
+        Pre-terminates the selected loans.
+        """
+        for loan in queryset:
+            loan.pre_terminate()
+
+        messages.success(request, _("Successfully pre-terminated selected loans."))
+    pre_terminate.short_description = _("Pre-terminate selected Loans")
