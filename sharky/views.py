@@ -71,8 +71,8 @@ class Dashboard(LoginRequiredMixin, TemplateView):
                             Count(
                                 "amortizations",
                                 filter=Q(amortizations__paid_date__isnull=True)
-                            ) / 2
-                        )
+                            )
+                        ) / 2
                     )
                 ),
                 default=Value(0),
