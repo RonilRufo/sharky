@@ -162,7 +162,7 @@ class Loan(UUIDPrimaryKeyMixin, TimeStampedModel):
         blank=True,
         help_text=_("Name of the actual borrower if known."),
     )
-    amount = models.DecimalField(max_digits=9,decimal_places=2)
+    amount = models.DecimalField(max_digits=9, decimal_places=2)
     interest_rate = models.DecimalField(max_digits=5, decimal_places=2)
     term = models.PositiveSmallIntegerField(help_text=_("Term duration in months."))
     payment_schedule = models.CharField(
@@ -268,19 +268,13 @@ class Loan(UUIDPrimaryKeyMixin, TimeStampedModel):
         return round(total, 2)
 
     @property
-    def remaining_months(self) -> int:
+    def remaining_payment_terms(self) -> int:
         """
-        Returns the remaining months until all payments for the loan is completed.
+        Returns the remaining payment terms until all payments for the loan is
+        completed. This is equivalent to the number of unpaid amortizations for the
+        loan.
         """
-        if self.is_payment_schedule_monthly:
-            return self.amortizations.filter(paid_date__isnull=True).count()
-        else:
-            next_due_date = self.next_payment_due_date
-            last_amortization = self.amortizations.filter(paid_date__isnull=True).last()
-            if last_amortization:
-                return month_difference(last_amortization.due_date, next_due_date)
-
-            return 0
+        return self.amortizations.filter(paid_date__isnull=True).count()
 
     @property
     def total_principal_receivables(self) -> Decimal:
@@ -290,7 +284,10 @@ class Loan(UUIDPrimaryKeyMixin, TimeStampedModel):
         """
         amount = 0
         if self.source and self.source.capital_source.is_savings:
-            amount = (self.amount / self.term) * self.remaining_months
+            amount = (self.amount / self.term) * self.remaining_payment_terms
+
+        if not self.is_payment_schedule_monthly:
+            amount /= 2
 
         return math.floor(amount)
 

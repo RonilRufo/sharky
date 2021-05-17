@@ -64,7 +64,8 @@ class LoanAdmin(admin.ModelAdmin):
         "interest_gained",
         "term",
         "next_payment_due_date",
-        "remaining_months",
+        "payment_schedule",
+        "remaining_payment_terms",
         "total_principal_receivables",
         "is_completed",
     )
@@ -101,8 +102,8 @@ class LoanAdmin(admin.ModelAdmin):
     def next_payment_due_date(self, obj):
         return obj.next_payment_due_date if obj.next_payment_due_date else "N/A"
 
-    def remaining_months(self, obj):
-        return obj.remaining_months
+    def remaining_payment_terms(self, obj):
+        return obj.remaining_payment_terms
 
     def total_principal_receivables(self, obj):
         """
