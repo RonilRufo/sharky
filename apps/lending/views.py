@@ -34,7 +34,8 @@ class EarningsGraph(View):
             loan_ids = Amortization.objects.filter(
                 ~Q(amort_type=Amortization.AMORTIZATION_TYPES.principal_only),
                 due_date__month=loan_date.month,
-                due_date__year=loan_date.year
+                due_date__year=loan_date.year,
+                is_preterminated=False,
             ).values_list("loan", flat=True).distinct()
             interest_data.append(
                 Loan.objects.filter(id__in=loan_ids).total_interest_earned()

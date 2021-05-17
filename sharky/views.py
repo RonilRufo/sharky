@@ -36,7 +36,8 @@ class Dashboard(LoginRequiredMixin, TemplateView):
         now = timezone.now()
         loan_ids = Amortization.objects.filter(
             due_date__month=now.month,
-            due_date__year=now.year
+            due_date__year=now.year,
+            is_preterminated=False,
         ).values_list("loan", flat=True).distinct()
         return Loan.objects.filter(id__in=loan_ids).total_interest_earned()
 
