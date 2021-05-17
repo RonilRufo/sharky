@@ -1,7 +1,7 @@
 from dateutil.relativedelta import relativedelta
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Count, Q
+from django.db.models import Count, Q, query
 from django.http import Http404
 from django.http.response import JsonResponse
 from django.utils import timezone
@@ -115,3 +115,13 @@ class PastDueList(LoginRequiredMixin, ListView):
     )
     template_name = "lending/amortization/past_due.html"
     context_object_name = "amortizations"
+
+
+class ActiveLoans(LoginRequiredMixin, ListView):
+    """
+    Displays list of active loans.
+    """
+
+    queryset = Loan.objects.filter(is_completed=False)
+    template_name = "lending/loan/list.html"
+    context_object_name = "loans"
