@@ -387,6 +387,7 @@ class Amortization(UUIDPrimaryKeyMixin, TimeStampedModel):
     )
     due_date = models.DateField()
     paid_date = models.DateField(blank=True, null=True)
+    is_preterminated = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = _("Amortization")
