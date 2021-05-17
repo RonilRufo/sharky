@@ -112,7 +112,7 @@ class LoanQuerySet(models.QuerySet):
                     ~Q(source__capital_source__source=CapitalSource.SOURCES.savings),
                     then=(
                         F("amount") * (F("interest_rate") / 100) -
-                        F("source__amount") * (F("source__interest_rate") / 100)
+                        F("amount") * (F("source__interest_rate") / 100)
                     )
                 ),
                 default=Value(0),
@@ -306,7 +306,6 @@ class LoanSource(UUIDPrimaryKeyMixin, TimeStampedModel):
         related_name="loan_sources",
         on_delete=models.CASCADE,
     )
-    amount = models.DecimalField(max_digits=9, decimal_places=2)
     interest_rate = models.DecimalField(
         max_digits=5,
         decimal_places=2,
@@ -315,22 +314,6 @@ class LoanSource(UUIDPrimaryKeyMixin, TimeStampedModel):
         help_text=_(
             "The interest rate from the bank if the source came from credit card or "
             "cash loan."
-        ),
-    )
-    day_deadline = models.PositiveSmallIntegerField(
-        blank=True,
-        null=True,
-        validators=[MinValueValidator(1), MaxValueValidator(31)],
-        help_text=_(
-            "The day of the month that the due date usually falls if the source came "
-            "from credit card or cash loan."
-        ),
-    )
-    term = models.PositiveSmallIntegerField(
-        blank=True,
-        null=True,
-        help_text=_(
-            "The term duration of the loan if the source is credit card or cash loan."
         ),
     )
     loan_received_date = models.DateField(
@@ -359,7 +342,7 @@ class LoanSource(UUIDPrimaryKeyMixin, TimeStampedModel):
         if self.capital_source.is_savings:
             return 0
 
-        income = self.amount * (self.interest_rate / 100)
+        income = self.loan.amount * (self.interest_rate / 100)
         return round(income, 2)
 
 
