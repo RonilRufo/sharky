@@ -40,6 +40,7 @@ class Borrower(UUIDPrimaryKeyMixin, TimeStampedModel):
         verbose_name = _("Borrower")
         verbose_name_plural = _("Borrowers")
         ordering = ("last_name", "first_name")
+        unique_together = ("first_name", "last_name")
 
     @property
     def full_name(self) -> str:
