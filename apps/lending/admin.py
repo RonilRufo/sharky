@@ -70,7 +70,12 @@ class LoanAdmin(admin.ModelAdmin):
         "total_principal_receivables",
         "is_completed",
     )
-    list_filter = ("borrower", "payment_schedule", "is_completed")
+    list_filter = (
+        "borrower",
+        "payment_schedule",
+        "source__capital_source__source",
+        "is_completed",
+    )
     search_fields = ("borrower__first_name", "borrower_last_name")
     inlines = [LoanSourceAdminInline, AmortizationAdminInline]
 
