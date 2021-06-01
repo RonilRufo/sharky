@@ -14,9 +14,13 @@
                 <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
                     <thead class="table-primary">
                         <tr>
-                            <th>Borrower</th>
+                            {% if request.user.is_superuser %}
+                                <th>Borrower</th>
+                            {% endif %}
                             <th>Loan Date</th>
-                            <th>Loan Source</th>
+                            {% if request.user.is_superuser %}
+                                <th>Loan Source</th>
+                            {% endif %}
                             <th>Payment Stage</th>
                             <th>Amount Due</th>
                             <th>Due Date</th>
@@ -25,9 +29,13 @@
                     <tbody>
                         {% for amortization in amortizations %}
                             <tr>
-                                <td>{{ amortization.loan.borrower_old }}</td>
+                                {% if request.user.is_superuser %}
+                                    <td>{{ amortization.loan.borrower_old }}</td>
+                                {% endif %}
                                 <td>{{ amortization.loan.loan_date|date:"M d, Y" }}</td>
-                                <td>{{ amortization.loan.source.capital_source.get_source_display }}</td>
+                                {% if request.user.is_superuser %}
+                                    <td>{{ amortization.loan.source.capital_source.get_source_display }}</td>
+                                {% endif %}
                                 <td>{{ amortization.payment_stage }}</td>
                                 <td>{{ amortization.amount_due|floatformat:0|intcomma }}</td>
                                 <td>{{ amortization.due_date|date:"M d, Y" }}</td>
