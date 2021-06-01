@@ -73,6 +73,11 @@ class EmailUser(AbstractBaseUser, PermissionsMixin, UUIDPrimaryKeyMixin):
         default=False, verbose_name='Developer',
         help_text='User can see developer settings on the frontend clients.')
 
+    is_borrower = models.BooleanField(
+        default=False,
+        help_text=_("If the user is a borrower or not."),
+    )
+
     USERNAME_FIELD = 'email'
     EMAIL_FIELD = 'email'
 
