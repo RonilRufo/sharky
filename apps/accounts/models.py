@@ -93,6 +93,9 @@ class EmailUser(AbstractBaseUser, PermissionsMixin, UUIDPrimaryKeyMixin):
         full_name = f'{self.first_name} {self.last_name}'.strip()
         return full_name or self.email
 
+    def __str__(self) -> str:
+        return self.get_full_name()
+
     def get_short_name(self) -> str:
         """Returns the short name for the User."""
         return self.first_name or self.email
