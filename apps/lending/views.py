@@ -181,3 +181,13 @@ class ActiveLoans(LoginRequiredMixin, ListView):
     queryset = Loan.objects.filter(is_completed=False)
     template_name = "lending/loan/list.html"
     context_object_name = "loans"
+
+    def get_queryset(self, *args, **kwargs):
+        """
+        Custom queryset for active loans.
+        """
+        queryset = super().get_queryset(*args, **kwargs)
+        if self.request.user.is_superuser:
+            return queryset
+
+        return queryset.filter(borrower=self.request.user)
