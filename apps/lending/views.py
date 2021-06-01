@@ -1,7 +1,7 @@
 from dateutil.relativedelta import relativedelta
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Count, Q, query
+from django.db.models import Count, Q
 from django.http import Http404
 from django.http.response import JsonResponse
 from django.utils import timezone
@@ -64,6 +64,62 @@ class EarningsGraph(View):
         )
 
 
+class MoneyReturnedGraph(View):
+    """
+    Returns data for plotting the money returned graph in dashboard page. This graph
+    displays the amount returned(interest and principal) based on the date paid on the
+    amortization.
+    """
+
+    def get(self, request, *args, **kwargs):
+        """
+        Handles the GET request to this view. Only accepts aJax requests.
+        """
+        is_ajax = request.META.get("HTTP_X_REQUESTED_WITH") == "XMLHttpRequest"
+        if not is_ajax:
+            raise Http404()
+
+        now = timezone.now()
+        paid_date = now - relativedelta(months=11)
+        labels = []
+        interest_data = []
+        principal_data = []
+        for i in range(12):
+            labels.append(paid_date.strftime("%b %Y"))
+
+            loan_ids = Amortization.objects.filter(
+                ~Q(amort_type=Amortization.AMORTIZATION_TYPES.principal_only),
+                paid_date__month=paid_date.month,
+                paid_date__year=paid_date.year,
+                is_preterminated=False,
+            ).values_list("loan", flat=True).distinct()
+            interest_data.append(
+                Loan.objects.filter(id__in=loan_ids).total_interest_earned()
+            )
+
+            principal_loan_ids = Amortization.objects.filter(
+                ~Q(amort_type=Amortization.AMORTIZATION_TYPES.interest_only),
+                loan__source__capital_source__source=CapitalSource.SOURCES.savings,
+                paid_date__month=paid_date.month,
+                paid_date__year=paid_date.year
+            ).values_list("loan", flat=True).distinct()
+            principal_data.append(
+                Loan.objects.filter(
+                    id__in=principal_loan_ids
+                ).total_principal_receivables()
+            )
+
+            paid_date += relativedelta(months=1)
+
+        return JsonResponse(
+            {
+                "labels": labels,
+                "interest_data": interest_data,
+                "principal_data": principal_data,
+            }
+        )
+
+
 class LoanSourcesGraph(View):
     """
     Returns data for plotting the loan sources graph in dashboard page.
@@ -110,7 +166,7 @@ class PastDueList(LoginRequiredMixin, ListView):
     """
 
     queryset = Amortization.objects.filter(
-        due_date__lte=timezone.now(),
+        due_date__lte=timezone.now().date(),
         paid_date__isnull=True,
     )
     template_name = "lending/amortization/past_due.html"

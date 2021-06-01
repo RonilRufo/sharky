@@ -92,24 +92,41 @@
     <div class="row">
 
         <!-- Area Chart -->
-        <div class="col-xl-8 col-lg-7">
+        <div class="col-xl-5 col-lg-5">
             <div class="card shadow mb-4">
                 <!-- Card Header - Dropdown -->
                 <div
                     class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Cashflow Overview</h6>
+                    <h6 class="m-0 font-weight-bold text-primary">Monthly Interest and Principal Receivables</h6>
                 </div>
                 <!-- Card Body -->
                 <div class="card-body">
                     <div class="chart-area">
-                        <canvas id="myAreaChart"></canvas>
+                        <canvas id="earningsGraph"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Money Returned Graph -->
+        <div class="col-xl-5 col-lg-5">
+            <div class="card shadow mb-4">
+                <!-- Card Header - Dropdown -->
+                <div
+                    class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Amount Received Monthly</h6>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="moneyReturnedGraph"></canvas>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Pie Chart -->
-        <div class="col-xl-4 col-lg-5">
+        <div class="col-xl-2 col-lg-2">
             <div class="card shadow mb-4">
                 <!-- Card Header - Dropdown -->
                 <div
@@ -135,6 +152,14 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Content Row -->
+    <div class="row">
+        
+        
+
+        <div class="clearfix">&nbsp;</div>
     </div>
 
     <!-- Content Row -->
@@ -297,7 +322,8 @@
     <script src="{% static 'vendor/chart.js/Chart.min.js' %}"></script>
 
     <!-- Page level custom scripts -->
-    <script src="{% static 'base/js/loan-sources-graph.js' %}"></script>
     <script src="{% static 'base/js/earnings-graph.js' %}"></script>
+    <script src="{% static 'base/js/money-returned-graph.js' %}"></script>
+    <script src="{% static 'base/js/loan-sources-graph.js' %}"></script>
     
 {% endblock %}
