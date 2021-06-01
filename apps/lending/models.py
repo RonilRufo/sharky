@@ -191,7 +191,7 @@ class Loan(UUIDPrimaryKeyMixin, TimeStampedModel):
 
     def __str__(self) -> str:
         amount = intcomma(self.amount)
-        return f"{self.borrower} | {amount} | {self.loan_date}"
+        return f"{self.borrower_old} | {amount} | {self.loan_date}"
 
     @property
     def amortization_amount_due(self) -> Decimal:
@@ -405,7 +405,7 @@ class Amortization(UUIDPrimaryKeyMixin, TimeStampedModel):
 
     def __str__(self) -> str:
         amount_due = intcomma(self.amount_due)
-        return f"{self.loan.borrower} | {amount_due} | {self.due_date}"
+        return f"{self.loan.borrower_old} | {amount_due} | {self.due_date}"
 
     @property
     def payment_stage(self) -> str:
