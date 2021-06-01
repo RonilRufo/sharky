@@ -211,6 +211,14 @@ class Loan(UUIDPrimaryKeyMixin, TimeStampedModel):
         return round(total, 2)
 
     @property
+    def payments_made(self) -> str:
+        """
+        Returns the number of amortizations paid over the duration of the term.
+        """
+        made = self.amortizations.filter(paid_date__isnull=False).count()
+        return f"{made} out of {self.term}"
+
+    @property
     def next_payment_due_date(self) -> datetime.date:
         """
         Returns the next payment due date based on the unpaid amortization.
