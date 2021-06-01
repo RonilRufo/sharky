@@ -57,7 +57,7 @@ class LoanAdmin(admin.ModelAdmin):
     """
     actions = ["generate_amortization", "pre_terminate"]
     list_display = (
-        "borrower",
+        "borrower_old",
         "loan_date",
         "amount_display",
         "interest_rate_display",
@@ -71,12 +71,12 @@ class LoanAdmin(admin.ModelAdmin):
         "is_completed",
     )
     list_filter = (
-        "borrower",
+        "borrower_old",
         "payment_schedule",
         "source__capital_source__source",
         "is_completed",
     )
-    search_fields = ("borrower__first_name", "borrower_last_name")
+    search_fields = ("borrower_old__first_name", "borrower_old_last_name")
     inlines = [LoanSourceAdminInline, AmortizationAdminInline]
 
     def amount_display(self, obj):

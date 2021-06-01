@@ -2,6 +2,7 @@ import datetime
 import math
 from decimal import Decimal
 
+from django.contrib.auth import get_user_model
 from django.contrib.humanize.templatetags.humanize import intcomma
 from django.db import models
 from django.db.models import Case, F, Q, Sum, Value, When, DecimalField
@@ -152,9 +153,10 @@ class Loan(UUIDPrimaryKeyMixin, TimeStampedModel):
         ("bi_monthly", _("Bi-monthly")),
     )
     borrower = models.ForeignKey(
-        "lending.Borrower",
+        get_user_model(),
         related_name="loans",
         on_delete=models.CASCADE,
+        null=True,
     )
     borrower_old = models.ForeignKey(
         "lending.Borrower",
