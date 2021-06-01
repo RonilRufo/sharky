@@ -1,7 +1,7 @@
 import math
-from typing import Any, Dict
+from typing import Any, Optional, Dict
 
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Case, Count, F, Q, Sum, Value, When, DecimalField
 from django.utils import timezone
 from django.views.generic import TemplateView
@@ -9,11 +9,14 @@ from django.views.generic import TemplateView
 from apps.lending.models import Amortization, CapitalSource, Loan
 
 
-class Dashboard(LoginRequiredMixin, TemplateView):
+class Dashboard(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
     """
     Displays the dashboard page.
     """
     template_name = "index.html"
+
+    def test_func(self) -> Optional[bool]:
+        return self.request.user.is_superuser
 
     def get_past_due_amortizations(self) -> int:
         """
