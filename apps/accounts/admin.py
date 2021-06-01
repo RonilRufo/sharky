@@ -96,6 +96,7 @@ class EmailUserAdmin(UserAdmin):
         ('Roles', {
             'fields': (
                 'is_developer',
+                "is_borrower",
                 'is_superuser',
             ),
         }),
