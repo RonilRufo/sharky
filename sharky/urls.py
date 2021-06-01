@@ -16,6 +16,7 @@ admin.site.site_header = mark_safe('<img src="{img}" alt="{alt}"/>'.format(
 
 urlpatterns = [
 
+    path("accounts/", include("apps.accounts.urls")),
     path("lending/", include("apps.lending.urls")),
     path("dashboard/", views.Dashboard.as_view(), name="dashboard"),
 
