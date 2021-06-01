@@ -149,7 +149,7 @@ class LoanAdmin(admin.ModelAdmin):
                 else:
                     due_date += relativedelta(days=15)
 
-            if len(amortization) > 0:
+            if amortization:
                 models.Amortization.objects.bulk_create(amortization)
 
         messages.success(request, _("Successfully generated amortization."))
