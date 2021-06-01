@@ -156,6 +156,13 @@ class Loan(UUIDPrimaryKeyMixin, TimeStampedModel):
         related_name="loans",
         on_delete=models.CASCADE,
     )
+    borrower_old = models.ForeignKey(
+        "lending.Borrower",
+        related_name="legacy_loans",
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+    )
     borrower_name = models.CharField(
         max_length=128,
         blank=True,
