@@ -172,6 +172,16 @@ class PastDueList(LoginRequiredMixin, ListView):
     template_name = "lending/amortization/past_due.html"
     context_object_name = "amortizations"
 
+    def get_queryset(self, *args, **kwargs):
+        """
+        Custom queryset for past due list.
+        """
+        queryset = super().get_queryset(*args, **kwargs)
+        if self.request.user.is_superuser:
+            return queryset
+
+        return queryset.filter(loan__borrower=self.request.user)
+
 
 class ActiveLoans(LoginRequiredMixin, ListView):
     """
