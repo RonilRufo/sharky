@@ -49,7 +49,7 @@
 
             {% if request.user.is_superuser %}
               <!-- Nav Item - Dashboard -->
-              <li class="nav-item active">
+              <li class="nav-item {% block nav_dashboard %}{% endblock %}">
                   <a class="nav-link" href="{% url 'dashboard' %}">
                       <i class="fas fa-fw fa-tachometer-alt"></i>
                       <span>Dashboard</span></a>
@@ -65,14 +65,14 @@
             </div>
 
             <!-- Nav Item - Past Due -->
-            <li class="nav-item">
+            <li class="nav-item {% block nav_past_due %}{% endblock %}">
                 <a class="nav-link" href="{% url 'lending:past-due-list' %}">
                     <i class="fas fa-fw fa-chart-area"></i>
                     <span>Past Due</span></a>
             </li>
 
             <!-- Nav Item - Active Loans -->
-            <li class="nav-item">
+            <li class="nav-item {% block nav_active_loans %}{% endblock %}">
                 <a class="nav-link" href="{% url 'lending:loans-active' %}">
                     <i class="fas fa-fw fa-chart-area"></i>
                     <span>Active Loans</span></a>
