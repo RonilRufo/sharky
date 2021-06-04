@@ -58,6 +58,8 @@ FRONTEND_OAUTH_REDIRECT = 'http://local.izeni.net:9000/oauth/'
 
 CORS_ORIGIN_ALLOW_ALL = True
 
+LOGOUT_REDIRECT_URL = "/accounts/login/"
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
