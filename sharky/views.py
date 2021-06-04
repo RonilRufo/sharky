@@ -3,8 +3,9 @@ from typing import Any, Optional, Dict
 
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Case, Count, F, Q, Sum, Value, When, DecimalField
+from django.urls import reverse_lazy
 from django.utils import timezone
-from django.views.generic import TemplateView
+from django.views.generic import RedirectView, TemplateView
 
 from apps.lending.models import Amortization, CapitalSource, Loan
 
@@ -94,3 +95,21 @@ class Dashboard(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
             "past_due_amortizations": self.get_past_due_amortizations(),
         })
         return context
+
+
+class Index(RedirectView):
+    """
+    Redirects to the corresponding pages when index page is accessed.
+    """
+
+    def get_redirect_url(self, *args: Any, **kwargs: Any) -> Optional[str]:
+        """
+        Returns the URL to redirect to.
+        """
+        user = self.request.user
+        if user.is_authenticated and user.is_superuser:
+            return reverse_lazy("dashboard")
+        elif user.is_authenticated and user.is_borrower:
+            return reverse_lazy("lending:loans-active")
+        else:
+            return reverse_lazy("accounts:login")
