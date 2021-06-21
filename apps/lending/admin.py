@@ -1,5 +1,4 @@
 from dateutil.relativedelta import relativedelta
-
 from django.contrib import admin, messages
 from django.contrib.humanize.templatetags.humanize import intcomma
 from django.utils.translation import gettext_lazy as _
@@ -11,6 +10,7 @@ class AmortizationAdminInline(admin.TabularInline):
     """
     Admin inline view for :model:`lending.Amortization`
     """
+
     model = models.Amortization
 
 
@@ -18,6 +18,7 @@ class LoanSourceAdminInline(admin.StackedInline):
     """
     Admin inline view for :model:`lending.LoanSource`
     """
+
     model = models.LoanSource
     extra = 1
     max = 2
@@ -28,6 +29,7 @@ class BankAdmin(admin.ModelAdmin):
     """
     Admin view for :model:`lending.Bank`
     """
+
     list_display = ("name", "abbreviation")
 
 
@@ -36,6 +38,7 @@ class BorrowerAdmin(admin.ModelAdmin):
     """
     Admin view for :model:`lending.Borrower`
     """
+
     pass
 
 
@@ -44,6 +47,7 @@ class CapitalSourceAdmin(admin.ModelAdmin):
     """
     Admin view for :model:`lending.CapitalSource`
     """
+
     list_display = ("name", "source", "bank")
 
     def source(self, obj) -> str:
@@ -55,6 +59,7 @@ class LoanAdmin(admin.ModelAdmin):
     """
     Admin view for :model:`lending.Loan`
     """
+
     actions = ["generate_amortization", "pre_terminate"]
     list_display = (
         "borrower_old",
@@ -82,12 +87,14 @@ class LoanAdmin(admin.ModelAdmin):
     def amount_display(self, obj):
         amount = int(obj.amount) if obj.amount % 1 == 0 else obj.amount
         return intcomma(amount)
+
     amount_display.short_description = _("Amount")
 
     def interest_amount(self, obj):
         amount = (
             int(obj.interest_amount)
-            if obj.interest_amount % 1 == 0 else obj.interest_amount
+            if obj.interest_amount % 1 == 0
+            else obj.interest_amount
         )
         return intcomma(amount)
 
@@ -96,12 +103,14 @@ class LoanAdmin(admin.ModelAdmin):
             int(obj.interest_rate) if obj.interest_rate % 1 == 0 else obj.interest_rate
         )
         return f"{amount}%"
+
     interest_rate_display.short_description = _("Interest Rate")
 
     def interest_gained(self, obj):
         amount = (
             int(obj.interest_gained)
-            if obj.interest_gained % 1 == 0 else obj.interest_gained
+            if obj.interest_gained % 1 == 0
+            else obj.interest_gained
         )
         return intcomma(amount)
 
@@ -153,6 +162,7 @@ class LoanAdmin(admin.ModelAdmin):
                 models.Amortization.objects.bulk_create(amortization)
 
         messages.success(request, _("Successfully generated amortization."))
+
     generate_amortization.short_description = _("Generate Loan Amortization")
 
     def pre_terminate(self, request, queryset):
@@ -163,4 +173,5 @@ class LoanAdmin(admin.ModelAdmin):
             loan.pre_terminate()
 
         messages.success(request, _("Successfully pre-terminated selected loans."))
+
     pre_terminate.short_description = _("Pre-terminate selected Loans")

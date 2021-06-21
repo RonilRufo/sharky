@@ -14,9 +14,7 @@ class AccountsMixin(object):
 
     def create_user(self, **kwargs):
 
-        if 'email' not in kwargs:
-            kwargs.update({
-                'email': self.fake.email()
-            })
+        if "email" not in kwargs:
+            kwargs.update({"email": self.fake.email()})
 
         return UserFactory(**kwargs)

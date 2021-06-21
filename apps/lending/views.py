@@ -1,11 +1,10 @@
 from dateutil.relativedelta import relativedelta
-
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count, Q
 from django.http import Http404
 from django.http.response import JsonResponse
 from django.utils import timezone
-from django.views.generic import View, ListView
+from django.views.generic import ListView, View
 
 from apps.lending.models import Amortization, CapitalSource, Loan
 
@@ -31,22 +30,30 @@ class EarningsGraph(View):
         for i in range(12):
             labels.append(loan_date.strftime("%b %Y"))
 
-            loan_ids = Amortization.objects.filter(
-                ~Q(amort_type=Amortization.AMORTIZATION_TYPES.principal_only),
-                due_date__month=loan_date.month,
-                due_date__year=loan_date.year,
-                is_preterminated=False,
-            ).values_list("loan", flat=True).distinct()
+            loan_ids = (
+                Amortization.objects.filter(
+                    ~Q(amort_type=Amortization.AMORTIZATION_TYPES.principal_only),
+                    due_date__month=loan_date.month,
+                    due_date__year=loan_date.year,
+                    is_preterminated=False,
+                )
+                .values_list("loan", flat=True)
+                .distinct()
+            )
             interest_data.append(
                 Loan.objects.filter(id__in=loan_ids).total_interest_earned()
             )
 
-            principal_loan_ids = Amortization.objects.filter(
-                ~Q(amort_type=Amortization.AMORTIZATION_TYPES.interest_only),
-                loan__source__capital_source__source=CapitalSource.SOURCES.savings,
-                due_date__month=loan_date.month,
-                due_date__year=loan_date.year
-            ).values_list("loan", flat=True).distinct()
+            principal_loan_ids = (
+                Amortization.objects.filter(
+                    ~Q(amort_type=Amortization.AMORTIZATION_TYPES.interest_only),
+                    loan__source__capital_source__source=CapitalSource.SOURCES.savings,
+                    due_date__month=loan_date.month,
+                    due_date__year=loan_date.year,
+                )
+                .values_list("loan", flat=True)
+                .distinct()
+            )
             principal_data.append(
                 Loan.objects.filter(
                     id__in=principal_loan_ids
@@ -87,22 +94,30 @@ class MoneyReturnedGraph(View):
         for i in range(12):
             labels.append(paid_date.strftime("%b %Y"))
 
-            loan_ids = Amortization.objects.filter(
-                ~Q(amort_type=Amortization.AMORTIZATION_TYPES.principal_only),
-                paid_date__month=paid_date.month,
-                paid_date__year=paid_date.year,
-                is_preterminated=False,
-            ).values_list("loan", flat=True).distinct()
+            loan_ids = (
+                Amortization.objects.filter(
+                    ~Q(amort_type=Amortization.AMORTIZATION_TYPES.principal_only),
+                    paid_date__month=paid_date.month,
+                    paid_date__year=paid_date.year,
+                    is_preterminated=False,
+                )
+                .values_list("loan", flat=True)
+                .distinct()
+            )
             interest_data.append(
                 Loan.objects.filter(id__in=loan_ids).total_interest_earned()
             )
 
-            principal_loan_ids = Amortization.objects.filter(
-                ~Q(amort_type=Amortization.AMORTIZATION_TYPES.interest_only),
-                loan__source__capital_source__source=CapitalSource.SOURCES.savings,
-                paid_date__month=paid_date.month,
-                paid_date__year=paid_date.year
-            ).values_list("loan", flat=True).distinct()
+            principal_loan_ids = (
+                Amortization.objects.filter(
+                    ~Q(amort_type=Amortization.AMORTIZATION_TYPES.interest_only),
+                    loan__source__capital_source__source=CapitalSource.SOURCES.savings,
+                    paid_date__month=paid_date.month,
+                    paid_date__year=paid_date.year,
+                )
+                .values_list("loan", flat=True)
+                .distinct()
+            )
             principal_data.append(
                 Loan.objects.filter(
                     id__in=principal_loan_ids
@@ -137,17 +152,17 @@ class LoanSourcesGraph(View):
         data = Loan.objects.aggregate(
             savings=Count(
                 "pk",
-                filter=Q(source__capital_source__source=CapitalSource.SOURCES.savings)
+                filter=Q(source__capital_source__source=CapitalSource.SOURCES.savings),
             ),
             credit_card=Count(
                 "pk",
                 filter=Q(
                     source__capital_source__source=CapitalSource.SOURCES.credit_card
-                )
+                ),
             ),
             cash_loan=Count(
                 "pk",
-                filter=Q(source__capital_source__source=CapitalSource.SOURCES.loan)
+                filter=Q(source__capital_source__source=CapitalSource.SOURCES.loan),
             ),
         )
         graph_data = [value for key, value in data.items()]

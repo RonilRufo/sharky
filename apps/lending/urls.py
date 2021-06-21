@@ -3,13 +3,8 @@ URL patterns in lending app
 """
 from django.urls import path
 
-from .views import (
-    ActiveLoans,
-    EarningsGraph,
-    LoanSourcesGraph,
-    MoneyReturnedGraph,
-    PastDueList,
-)
+from .views import (ActiveLoans, EarningsGraph, LoanSourcesGraph,
+                    MoneyReturnedGraph, PastDueList)
 
 app_name = "lending"
 urlpatterns = [
@@ -21,5 +16,5 @@ urlpatterns = [
         name="money-returned-graph",
     ),
     path("amortization/past-due/", PastDueList.as_view(), name="past-due-list"),
-    path("loans/active/", ActiveLoans.as_view(), name="loans-active")
+    path("loans/active/", ActiveLoans.as_view(), name="loans-active"),
 ]

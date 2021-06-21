@@ -7,7 +7,7 @@ _**TODO**: point these links to the correct URLs once CI is activated for this p
 
 
 ## Setting up a development environment
-    
+
 ### [Recommended development tools/aliases][recommended-development-tools]
 
 [recommended-development-tools]: https://dev.izeni.net/izeni/izeni-django-template/wikis/recommended-development-tools
@@ -27,7 +27,7 @@ _(Note: make certain you are using **python3** for this - python2 is no longer s
     ```
 
 1. Create the database:
-    
+
     ```bash
     echo "CREATE USER sharky WITH PASSWORD 'sharky'; CREATE DATABASE sharky OWNER sharky; ALTER USER sharky CREATEDB;" | su postgres -c psql
     ```

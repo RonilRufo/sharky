@@ -2,9 +2,9 @@ from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
-from django.views.generic import FormView
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
+from django.views.generic import FormView
 
 from .forms import CustomSetPasswordForm, LoginForm
 
@@ -38,7 +38,7 @@ class PasswordChange(LoginRequiredMixin, FormView):
 
     def get_form_kwargs(self):
         context = super(PasswordChange, self).get_form_kwargs()
-        context['user'] = self.request.user
+        context["user"] = self.request.user
         return context
 
     def form_valid(self, form):

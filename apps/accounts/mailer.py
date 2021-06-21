@@ -7,21 +7,16 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.utils.translation import ugettext_lazy as _
 
-
 User = get_user_model()
 
 
-class AccountsMailer():
+class AccountsMailer:
 
-    subjects = {
-        'existing_email': _("sharky: Email used in signup")
-    }
+    subjects = {"existing_email": _("sharky: Email used in signup")}
 
-    def send(self,
-             subject: str,
-             template: str,
-             context: dict,
-             recipient_list: List[str]):
+    def send(
+        self, subject: str, template: str, context: dict, recipient_list: List[str]
+    ):
         """
         Generic method for sending email.
         """
@@ -34,11 +29,11 @@ class AccountsMailer():
             message=message,
             html_message=html_message,
             recipient_list=recipient_list,
-            fail_silently=False
+            fail_silently=False,
         )
 
     def send_existing_email(self, **context):
-        subject = self.subjects['existing_email']
+        subject = self.subjects["existing_email"]
         template = "accounts/email/email_existing.html"
         recipient = context.get(User.USERNAME_FIELD)
         return self.send(subject, template, context, [recipient])

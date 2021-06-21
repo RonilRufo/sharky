@@ -31,21 +31,18 @@ class GraphQLAuthErrorMiddleware:
         except Exception:
             content = None
 
-        if content and content.get('data', None):
-            data = content.get('data', None)
+        if content and content.get("data", None):
+            data = content.get("data", None)
             keys = data.keys()
             for key in keys:
                 if data[key]:
                     try:
-                        errors = data[key].get('errors', None)
+                        errors = data[key].get("errors", None)
                     except Exception:
                         errors = None
 
                     if errors:
-                        response_data = {
-                            'errors': errors,
-                            'data': data
-                        }
+                        response_data = {"errors": errors, "data": data}
                         response.content = json.dumps(response_data)
                         response.status_code = 400
 

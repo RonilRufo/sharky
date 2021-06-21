@@ -5,7 +5,7 @@ from decimal import Decimal
 from django.contrib.auth import get_user_model
 from django.contrib.humanize.templatetags.humanize import intcomma
 from django.db import models
-from django.db.models import Case, F, Q, Sum, Value, When, DecimalField
+from django.db.models import Case, DecimalField, F, Q, Sum, Value, When
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from model_utils import Choices
@@ -18,6 +18,7 @@ class Bank(UUIDPrimaryKeyMixin):
     """
     Stores information about a bank.
     """
+
     name = models.CharField(max_length=128, unique=True)
     abbreviation = models.CharField(max_length=32, blank=True)
 
@@ -34,6 +35,7 @@ class Borrower(UUIDPrimaryKeyMixin, TimeStampedModel):
     """
     The borrower of the loan.
     """
+
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
 
@@ -59,6 +61,7 @@ class CapitalSource(UUIDPrimaryKeyMixin, TimeStampedModel):
     Stores information about the source of the capital money(where the money used for
     capital came from).
     """
+
     SOURCES = Choices(
         ("savings", _("Savings Account")),
         ("credit_card", _("Credit Card")),
@@ -106,14 +109,14 @@ class LoanQuerySet(models.QuerySet):
             interest=Case(
                 When(
                     source__capital_source__source=CapitalSource.SOURCES.savings,
-                    then=F("amount") * (F("interest_rate") / 100)
+                    then=F("amount") * (F("interest_rate") / 100),
                 ),
                 When(
                     ~Q(source__capital_source__source=CapitalSource.SOURCES.savings),
                     then=(
-                        F("amount") * (F("interest_rate") / 100) -
-                        F("amount") * (F("source__interest_rate") / 100)
-                    )
+                        F("amount") * (F("interest_rate") / 100)
+                        - F("amount") * (F("source__interest_rate") / 100)
+                    ),
                 ),
                 default=Value(0),
                 output_field=DecimalField(),
@@ -148,6 +151,7 @@ class Loan(UUIDPrimaryKeyMixin, TimeStampedModel):
     """
     Stores main information about a loan made.
     """
+
     PAYMENT_SCHEDULES = Choices(
         ("monthly", _("Monthly")),
         ("bi_monthly", _("Bi-monthly")),
@@ -331,6 +335,7 @@ class LoanSource(UUIDPrimaryKeyMixin, TimeStampedModel):
     """
     Stores further information about the source of the capital money used in a loan.
     """
+
     loan = models.OneToOneField(
         "lending.Loan",
         related_name="source",
@@ -362,7 +367,7 @@ class LoanSource(UUIDPrimaryKeyMixin, TimeStampedModel):
     class Meta:
         verbose_name = _("Loan Source")
         verbose_name_plural = _("Loan Sources")
-        ordering = ("-created", )
+        ordering = ("-created",)
 
     def __str__(self) -> str:
         return f"{self.loan} -> {self.capital_source}"
@@ -385,6 +390,7 @@ class Amortization(UUIDPrimaryKeyMixin, TimeStampedModel):
     """
     The amortization to be paid by the borrower depending on the payment schedule.
     """
+
     AMORTIZATION_TYPES = Choices(
         ("full_payment", _("Full Payment")),
         ("interest_only", _("Interest Only")),

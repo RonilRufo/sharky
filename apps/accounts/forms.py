@@ -28,6 +28,6 @@ class CustomSetPasswordForm(SetPasswordForm):
         for field in self.fields:
             self.fields[field].widget.attrs["class"] = "form-control"
             self.fields["new_password1"].widget.attrs["placeholder"] = "New Password"
-            self.fields["new_password2"].widget.attrs["placeholder"] = (
-                "Password Confirmation"
-            )
+            self.fields["new_password2"].widget.attrs[
+                "placeholder"
+            ] = "Password Confirmation"

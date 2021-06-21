@@ -1,26 +1,22 @@
 import graphene
-
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.signing import BadSignature, SignatureExpired
 from django.utils.translation import ugettext_lazy as _
-
 from graphql_auth import mutations
 from graphql_auth.constants import Messages
 from graphql_auth.exceptions import TokenScopeError, UserAlreadyVerified
 from graphql_auth.models import TokenAction, UserStatus
 from graphql_auth.settings import graphql_auth_settings as app_settings
 from graphql_auth.utils import get_token_paylod
-from graphql_jwt.shortcuts import get_token, create_refresh_token
+from graphql_jwt.shortcuts import create_refresh_token, get_token
 
 from ..mailer import AccountsMailer
-
 
 User = get_user_model()
 
 
 class CustomRegister(mutations.Register):
-
     @classmethod
     def mutate(cls, root, info, **input):
         """
@@ -32,9 +28,7 @@ class CustomRegister(mutations.Register):
         # This can be either `username` or `email` depending on what is set
         # in USERNAME_FIELD
         username = input.get(User.USERNAME_FIELD)
-        kwargs = {
-            User.USERNAME_FIELD: username
-        }
+        kwargs = {User.USERNAME_FIELD: username}
 
         # Check if user already exists
         try:
@@ -59,10 +53,10 @@ class CustomRegister(mutations.Register):
 
 class CustomVerify(mutations.VerifyAccount):
 
-    access_token = graphene.String(
-        description=_('Access token of the verified user.'))
+    access_token = graphene.String(description=_("Access token of the verified user."))
     refresh_token = graphene.String(
-        description=_('Refresh token of the verified user.'))
+        description=_("Refresh token of the verified user.")
+    )
 
     @classmethod
     def get_user(cls, token):
@@ -70,9 +64,7 @@ class CustomVerify(mutations.VerifyAccount):
         Retrieves the User object based on the given verification token.
         """
         payload = get_token_paylod(
-            token,
-            TokenAction.ACTIVATION,
-            app_settings.EXPIRATION_ACTIVATION_TOKEN
+            token, TokenAction.ACTIVATION, app_settings.EXPIRATION_ACTIVATION_TOKEN
         )
         return User.objects.get(**payload)
 
@@ -87,18 +79,15 @@ class CustomVerify(mutations.VerifyAccount):
         try:
             token = kwargs.get("token")
             UserStatus.verify(token)
-            response = {
-                'success': True
-            }
+            response = {"success": True}
 
-            if settings.GRAPHQL_AUTH.get('ALLOW_LOGIN_AFTER_VERIFY', False):
+            if settings.GRAPHQL_AUTH.get("ALLOW_LOGIN_AFTER_VERIFY", False):
                 user = cls.get_user(token)
                 access_token = get_token(user)
                 refresh_token = create_refresh_token(user)
-                response.update({
-                    'access_token': access_token,
-                    'refresh_token': refresh_token
-                })
+                response.update(
+                    {"access_token": access_token, "refresh_token": refresh_token}
+                )
 
             return cls(**response)
         except UserAlreadyVerified:
@@ -113,6 +102,7 @@ class AuthMutation(graphene.ObjectType):
     """
     Mutatiions used particularly in authentication.
     """
+
     register = CustomRegister.Field()
     verify_account = CustomVerify.Field()
     resend_activation_email = mutations.ResendActivationEmail.Field()
