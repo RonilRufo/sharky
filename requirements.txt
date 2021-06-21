@@ -1,4 +1,4 @@
-# Core libs                                                                                        
+# Core libs
 Pillow
 psycopg2
 Django
@@ -8,6 +8,7 @@ django-graphql-extensions
 django-graphql-auth
 django-model-utils
 requests
+pre-commit
 
 # dev
 django-extensions
