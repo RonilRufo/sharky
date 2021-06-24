@@ -261,4 +261,4 @@ USE_L10N = True
 
 
 # Secrets
-SECRET_KEY = "django-insecure-=*h23yiw&t2s4@xk=(^s3wf$5dm_a8g=ikp3($8=23zt)6kbx5"
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
