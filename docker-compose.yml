@@ -15,3 +15,4 @@ backend:
   environment:
     DB_HOST: database
     PYTHONUNBUFFERED: 1
+    DJANGO_SECRET_KEY: b#u+fbl588s)igme)flan_j8lj=@&+-+i!=&m6bg8mv+#0tt##
