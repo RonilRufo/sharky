@@ -336,9 +336,9 @@ class LoanSource(UUIDPrimaryKeyMixin, TimeStampedModel):
     Stores further information about the source of the capital money used in a loan.
     """
 
-    loan = models.OneToOneField(
+    loan = models.ForeignKey(
         "lending.Loan",
-        related_name="source",
+        related_name="sources",
         on_delete=models.CASCADE,
     )
     capital_source = models.ForeignKey(
