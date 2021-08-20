@@ -78,7 +78,6 @@ class LoanAdmin(admin.ModelAdmin):
     list_filter = (
         "borrower_old",
         "payment_schedule",
-        "source__capital_source__source",
         "is_completed",
     )
     search_fields = ("borrower_old__first_name", "borrower_old_last_name")
