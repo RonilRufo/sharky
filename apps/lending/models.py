@@ -346,6 +346,7 @@ class LoanSource(UUIDPrimaryKeyMixin, TimeStampedModel):
         related_name="loan_sources",
         on_delete=models.CASCADE,
     )
+    amount = models.DecimalField(max_digits=9, decimal_places=2)
     interest_rate = models.DecimalField(
         max_digits=5,
         decimal_places=2,
@@ -355,6 +356,18 @@ class LoanSource(UUIDPrimaryKeyMixin, TimeStampedModel):
             "The interest rate from the bank if the source came from credit card or "
             "cash loan."
         ),
+    )
+    monthly_amortization = models.DecimalField(
+        max_digits=9,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        help_text=_("Only applicable if the source comes from any other than savings."),
+    )
+    loan_applied_date = models.DateField(
+        blank=True,
+        null=True,
+        help_text=_("The date when the loan was applied to in the bank."),
     )
     loan_received_date = models.DateField(
         blank=True,
