@@ -399,6 +399,44 @@ class LoanSource(UUIDPrimaryKeyMixin, TimeStampedModel):
         return round(income, 2)
 
 
+class LoanSourceAmortization(UUIDPrimaryKeyMixin):
+    """
+    The monthly amortization for a certain loan source if the source came from any other
+    than the savings type. This will be mainly used to track down amortization for a
+    certain loan made by the owner to a certain bank.
+    """
+
+    source = models.ForeignKey(
+        "lending.LoanSource",
+        related_name="amortizations",
+        on_delete=models.CASCADE,
+    )
+    due_date = models.DateField()
+    paid_date = models.DateField(blank=True, null=True)
+    amount = models.DecimalField(
+        max_digits=9,
+        decimal_places=2,
+        help_text=_("The monthly amortization amount due."),
+    )
+    is_preterminated = models.BooleanField(blank=False)
+    pretermindated_interest_rate = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        help_text=_(
+            "The interest rate provided by the bank in the case ofpre-termination of "
+            "the loan."
+        ),
+    )
+
+    class Meta:
+        verbose_name = _("Loan Source Amortization")
+        verbose_name_plural = _("Loan Source Amortizations")
+        ordering = ("due_date",)
+
+    def __str__(self):
+        return f"{self.source.capital_source.name}: {self.amount} on {self.due_date}"
+
+
 class Amortization(UUIDPrimaryKeyMixin, TimeStampedModel):
     """
     The amortization to be paid by the borrower depending on the payment schedule.
