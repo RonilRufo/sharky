@@ -424,6 +424,14 @@ class Amortization(UUIDPrimaryKeyMixin, TimeStampedModel):
     due_date = models.DateField()
     paid_date = models.DateField(blank=True, null=True)
     is_preterminated = models.BooleanField(default=False)
+    amount_gained = models.DecimalField(
+        max_digits=9,
+        decimal_places=2,
+        help_text=_(
+            "Also referred to as the income for this particular loan on a monthly "
+            "basis."
+        ),
+    )
 
     class Meta:
         verbose_name = _("Amortization")
