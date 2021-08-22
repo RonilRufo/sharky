@@ -1,6 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Sum
 from django.http import Http404
 from django.http.response import JsonResponse
 from django.utils import timezone
@@ -30,19 +30,14 @@ class EarningsGraph(View):
         for i in range(12):
             labels.append(loan_date.strftime("%b %Y"))
 
-            loan_ids = (
-                Amortization.objects.filter(
-                    ~Q(amort_type=Amortization.AMORTIZATION_TYPES.principal_only),
-                    due_date__month=loan_date.month,
-                    due_date__year=loan_date.year,
-                    is_preterminated=False,
-                )
-                .values_list("loan", flat=True)
-                .distinct()
-            )
-            interest_data.append(
-                Loan.objects.filter(id__in=loan_ids).total_interest_earned()
-            )
+            amortizations = Amortization.objects.filter(
+                ~Q(amort_type=Amortization.AMORTIZATION_TYPES.principal_only),
+                due_date__month=loan_date.month,
+                due_date__year=loan_date.year,
+                is_preterminated=False,
+            ).aggregate(total_gained=Sum("amount_gained"))
+
+            interest_data.append(amortizations["total_gained"])
 
             principal_loan_ids = (
                 Amortization.objects.filter(
