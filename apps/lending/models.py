@@ -147,6 +147,35 @@ class LoanQuerySet(models.QuerySet):
         return math.floor(amount["total"]) if amount["total"] else 0
 
 
+class LoanSourceQuerySet(models.QuerySet):
+    """
+    Custom queryset for :model:`lending.LoanSource`
+    """
+
+    def total_amount_earned(self):
+        """
+        Returns the total amount earned from the selected loan sources.
+        """
+        amount = self.annotate(
+            amount_gained=Case(
+                When(
+                    capital_source__source=CapitalSource.SOURCES.savings,
+                    then=F("amount") * (F("loan__interest_rate") / 100),
+                ),
+                When(
+                    ~Q(capital_source__source=CapitalSource.SOURCES.savings),
+                    then=(
+                        F("amount")
+                        * ((F("loan__interest_rate") - F("interest_rate")) / 100)
+                    ),
+                ),
+                default=Value(0),
+                output_field=DecimalField(),
+            )
+        ).aggregate(total=Sum("amount_gained"))
+        return math.floor(amount["total"]) if amount["total"] else 0
+
+
 class Loan(UUIDPrimaryKeyMixin, TimeStampedModel):
     """
     Stores main information about a loan made.
@@ -376,6 +405,8 @@ class LoanSource(UUIDPrimaryKeyMixin, TimeStampedModel):
             "The date when the loan from the credit card or cash loan was received."
         ),
     )
+
+    objects = LoanSourceQuerySet.as_manager()
 
     class Meta:
         verbose_name = _("Loan Source")
