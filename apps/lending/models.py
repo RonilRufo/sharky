@@ -304,7 +304,7 @@ class Loan(UUIDPrimaryKeyMixin, TimeStampedModel):
         """
         Returns the total interest gained depending on the sources of the loan.
         """
-        gained_amount = self.interest_amount - self.source.interest_amount
+        gained_amount = self.sources.all().total_amount_earned()
         return round(gained_amount, 2)
 
     @property
@@ -332,8 +332,14 @@ class Loan(UUIDPrimaryKeyMixin, TimeStampedModel):
         apply to loans having savings account as their source.
         """
         amount = 0
-        if self.source and self.source.capital_source.is_savings:
-            amount = (self.amount / self.term) * self.remaining_payment_terms
+        sources = self.sources.filter(
+            capital_source__source=CapitalSource.SOURCES.savings
+        )
+        if sources.exists():
+            receivable = sources.annotate(
+                receivables=F("amount") / F("loan__term")
+            ).aggregate(total=Sum("receivables"))
+            amount = receivable["total"] * self.remaining_payment_terms
 
         if not self.is_payment_schedule_monthly:
             amount /= 2
