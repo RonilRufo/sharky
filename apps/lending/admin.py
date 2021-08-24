@@ -149,6 +149,7 @@ class LoanAdmin(admin.ModelAdmin):
                         loan=loan,
                         amount_due=loan.amortization_amount_due,
                         due_date=due_date,
+                        amount_gained=loan.sources.all().total_amount_earned(),
                     )
                 )
 
