@@ -39,16 +39,12 @@ class Dashboard(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
         Returns the earnings from all loans for the current month.
         """
         now = timezone.now()
-        loan_ids = (
-            Amortization.objects.filter(
-                due_date__month=now.month,
-                due_date__year=now.year,
-                is_preterminated=False,
-            )
-            .values_list("loan", flat=True)
-            .distinct()
-        )
-        return Loan.objects.filter(id__in=loan_ids).total_interest_earned()
+        amortizations = Amortization.objects.filter(
+            due_date__month=now.month,
+            due_date__year=now.year,
+            is_preterminated=False,
+        ).aggregate(total_gained=Sum("amount_gained"))
+        return amortizations["total_gained"]
 
     def get_total_principal_receivables(self) -> int:
         """
@@ -100,7 +96,7 @@ class Dashboard(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
             {
                 "active_loans": self.get_active_loans(),
                 "current_month_earnings": self.get_earnings_for_current_month(),
-                "total_principal_receivables": self.get_total_principal_receivables(),
+                # "total_principal_receivables": self.get_total_principal_receivables(),
                 "past_due_amortizations": self.get_past_due_amortizations(),
             }
         )
