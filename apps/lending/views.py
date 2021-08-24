@@ -1,12 +1,12 @@
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Count, Q, Sum
+from django.db.models import Count, F, Q, Sum
 from django.http import Http404
 from django.http.response import JsonResponse
 from django.utils import timezone
 from django.views.generic import ListView, View
 
-from apps.lending.models import Amortization, CapitalSource, Loan
+from apps.lending.models import Amortization, CapitalSource, Loan, LoanSource
 
 
 class EarningsGraph(View):
@@ -89,35 +89,32 @@ class MoneyReturnedGraph(View):
         for i in range(12):
             labels.append(paid_date.strftime("%b %Y"))
 
-            loan_ids = (
-                Amortization.objects.filter(
-                    ~Q(amort_type=Amortization.AMORTIZATION_TYPES.principal_only),
-                    paid_date__month=paid_date.month,
-                    paid_date__year=paid_date.year,
-                    is_preterminated=False,
+            amortizations = Amortization.objects.filter(
+                ~Q(amort_type=Amortization.AMORTIZATION_TYPES.principal_only),
+                due_date__month=paid_date.month,
+                due_date__year=paid_date.year,
+                is_preterminated=False,
+            ).aggregate(total_gained=Sum("amount_gained"))
+
+            interest_data.append(amortizations["total_gained"])
+
+            principal_amortization = Amortization.objects.filter(
+                ~Q(amort_type=Amortization.AMORTIZATION_TYPES.interest_only),
+                paid_date__month=paid_date.month,
+                paid_date__year=paid_date.year,
+            ).distinct()
+
+            receivable = (
+                LoanSource.objects.filter(
+                    loan__amortizations__in=principal_amortization,
+                    capital_source__source=CapitalSource.SOURCES.savings,
                 )
-                .values_list("loan", flat=True)
                 .distinct()
-            )
-            interest_data.append(
-                Loan.objects.filter(id__in=loan_ids).total_interest_earned()
+                .annotate(receivables=F("amount") / F("loan__term"))
+                .aggregate(total=Sum("receivables"))
             )
 
-            principal_loan_ids = (
-                Amortization.objects.filter(
-                    ~Q(amort_type=Amortization.AMORTIZATION_TYPES.interest_only),
-                    loan__source__capital_source__source=CapitalSource.SOURCES.savings,
-                    paid_date__month=paid_date.month,
-                    paid_date__year=paid_date.year,
-                )
-                .values_list("loan", flat=True)
-                .distinct()
-            )
-            principal_data.append(
-                Loan.objects.filter(
-                    id__in=principal_loan_ids
-                ).total_principal_receivables()
-            )
+            principal_data.append(receivable["total"])
 
             paid_date += relativedelta(months=1)
 
