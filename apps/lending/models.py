@@ -410,6 +410,8 @@ class LoanSourceAmortization(UUIDPrimaryKeyMixin):
             "The interest rate provided by the bank in the case ofpre-termination of "
             "the loan."
         ),
+        blank=True,
+        null=True,
     )
 
     class Meta:
