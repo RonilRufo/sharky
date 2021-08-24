@@ -82,7 +82,7 @@ class LoanAdmin(admin.ModelAdmin):
 
     actions = ["generate_amortization", "pre_terminate"]
     list_display = (
-        "borrower_old",
+        "borrower",
         "loan_date",
         "amount_display",
         "interest_rate_display",
