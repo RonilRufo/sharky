@@ -21,7 +21,7 @@
                             {% endif %}
                             <th>Loan Date</th>
                             {% if request.user.is_superuser %}
-                                <th>Loan Source</th>
+                                <th>Loan Sources</th>
                             {% endif %}
                             <th>Payment Stage</th>
                             <th>Amount Due</th>
@@ -32,11 +32,17 @@
                         {% for amortization in amortizations %}
                             <tr>
                                 {% if request.user.is_superuser %}
-                                    <td>{{ amortization.loan.borrower_old }}</td>
+                                    <td>{{ amortization.loan.borrower.get_full_name }}</td>
                                 {% endif %}
                                 <td>{{ amortization.loan.loan_date|date:"M d, Y" }}</td>
                                 {% if request.user.is_superuser %}
-                                    <td>{{ amortization.loan.source.capital_source.get_source_display }}</td>
+                                    <td>
+                                        <ul>
+                                            {% for source in amortization.loan.sources.all %}
+                                                <li>{{ source.capital_source.name }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </td>
                                 {% endif %}
                                 <td>{{ amortization.payment_stage }}</td>
                                 <td>{{ amortization.amount_due|floatformat:0|intcomma }}</td>
