@@ -39,21 +39,23 @@ class EarningsGraph(View):
 
             interest_data.append(amortizations["total_gained"])
 
-            principal_loan_ids = (
-                Amortization.objects.filter(
-                    ~Q(amort_type=Amortization.AMORTIZATION_TYPES.interest_only),
-                    loan__source__capital_source__source=CapitalSource.SOURCES.savings,
-                    due_date__month=loan_date.month,
-                    due_date__year=loan_date.year,
+            principal_amortization = Amortization.objects.filter(
+                ~Q(amort_type=Amortization.AMORTIZATION_TYPES.interest_only),
+                due_date__month=loan_date.month,
+                due_date__year=loan_date.year,
+            ).distinct()
+
+            receivable = (
+                LoanSource.objects.filter(
+                    loan__amortizations__in=principal_amortization,
+                    capital_source__source=CapitalSource.SOURCES.savings,
                 )
-                .values_list("loan", flat=True)
                 .distinct()
+                .annotate(receivables=F("amount") / F("loan__term"))
+                .aggregate(total=Sum("receivables"))
             )
-            principal_data.append(
-                Loan.objects.filter(
-                    id__in=principal_loan_ids
-                ).total_principal_receivables()
-            )
+
+            principal_data.append(receivable["total"])
 
             loan_date += relativedelta(months=1)
 
