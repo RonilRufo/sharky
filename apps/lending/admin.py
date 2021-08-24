@@ -14,6 +14,26 @@ class AmortizationAdminInline(admin.TabularInline):
     model = models.Amortization
 
 
+class LoanSourceAmortizationAdminInline(admin.TabularInline):
+    """
+    Admin inline view for :model:`lending.LoanSourceAmortization`
+    """
+
+    model = models.LoanSourceAmortization
+    extra = 1
+    max = 2
+
+
+@admin.register(models.LoanSource)
+class LoanSourceAdmin(admin.ModelAdmin):
+    """
+    Admin view for :model:`lending.LoanSource`
+    """
+
+    model = models.LoanSource
+    inlines = [LoanSourceAmortizationAdminInline]
+
+
 class LoanSourceAdminInline(admin.StackedInline):
     """
     Admin inline view for :model:`lending.LoanSource`
