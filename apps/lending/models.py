@@ -96,57 +96,6 @@ class CapitalSource(UUIDPrimaryKeyMixin, TimeStampedModel):
         return self.source == self.SOURCES.savings
 
 
-class LoanQuerySet(models.QuerySet):
-    """
-    Custom queryset for :model:`lending.Loan`
-    """
-
-    def total_interest_earned(self):
-        """
-        Returns the total interest earned from the selected loans.
-        """
-        amount = self.annotate(
-            interest=Case(
-                When(
-                    source__capital_source__source=CapitalSource.SOURCES.savings,
-                    then=F("amount") * (F("interest_rate") / 100),
-                ),
-                When(
-                    ~Q(source__capital_source__source=CapitalSource.SOURCES.savings),
-                    then=(
-                        F("amount") * (F("interest_rate") / 100)
-                        - F("amount") * (F("source__interest_rate") / 100)
-                    ),
-                ),
-                default=Value(0),
-                output_field=DecimalField(),
-            )
-        ).aggregate(total=Sum("interest"))
-        return math.floor(amount["total"]) if amount["total"] else 0
-
-    def total_principal_receivables(self):
-        """
-        Returns the total principal amount receivables for the selected loans.
-        """
-        amount = self.annotate(
-            principal=Case(
-                When(
-                    source__capital_source__source=CapitalSource.SOURCES.savings,
-                    payment_schedule="monthly",
-                    then=F("amount") / F("term"),
-                ),
-                When(
-                    source__capital_source__source=CapitalSource.SOURCES.savings,
-                    payment_schedule="bi_monthly",
-                    then=(F("amount") / F("term")) * 2,
-                ),
-                default=Value(0),
-                output_field=DecimalField(),
-            )
-        ).aggregate(total=Sum("principal"))
-        return math.floor(amount["total"]) if amount["total"] else 0
-
-
 class LoanSourceQuerySet(models.QuerySet):
     """
     Custom queryset for :model:`lending.LoanSource`
@@ -214,8 +163,6 @@ class Loan(UUIDPrimaryKeyMixin, TimeStampedModel):
     first_payment_date = models.DateField(default=timezone.now)
     is_completed = models.BooleanField(default=False)
     loan_date = models.DateField()
-
-    objects = LoanQuerySet.as_manager()
 
     class Meta:
         verbose_name = _("Loan")
