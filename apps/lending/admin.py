@@ -53,15 +53,6 @@ class BankAdmin(admin.ModelAdmin):
     list_display = ("name", "abbreviation")
 
 
-@admin.register(models.Borrower)
-class BorrowerAdmin(admin.ModelAdmin):
-    """
-    Admin view for :model:`lending.Borrower`
-    """
-
-    pass
-
-
 @admin.register(models.CapitalSource)
 class CapitalSourceAdmin(admin.ModelAdmin):
     """
