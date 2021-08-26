@@ -146,17 +146,17 @@ class LoanSourcesGraph(View):
         data = Loan.objects.aggregate(
             savings=Count(
                 "pk",
-                filter=Q(source__capital_source__source=CapitalSource.SOURCES.savings),
+                filter=Q(sources__capital_source__source=CapitalSource.SOURCES.savings),
             ),
             credit_card=Count(
                 "pk",
                 filter=Q(
-                    source__capital_source__source=CapitalSource.SOURCES.credit_card
+                    sources__capital_source__source=CapitalSource.SOURCES.credit_card
                 ),
             ),
             cash_loan=Count(
                 "pk",
-                filter=Q(source__capital_source__source=CapitalSource.SOURCES.loan),
+                filter=Q(sources__capital_source__source=CapitalSource.SOURCES.loan),
             ),
         )
         graph_data = [value for key, value in data.items()]
