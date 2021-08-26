@@ -53,15 +53,6 @@ class BankAdmin(admin.ModelAdmin):
     list_display = ("name", "abbreviation")
 
 
-@admin.register(models.Borrower)
-class BorrowerAdmin(admin.ModelAdmin):
-    """
-    Admin view for :model:`lending.Borrower`
-    """
-
-    pass
-
-
 @admin.register(models.CapitalSource)
 class CapitalSourceAdmin(admin.ModelAdmin):
     """
@@ -96,11 +87,11 @@ class LoanAdmin(admin.ModelAdmin):
         "is_completed",
     )
     list_filter = (
-        "borrower_old",
+        "borrower",
         "payment_schedule",
         "is_completed",
     )
-    search_fields = ("borrower_old__first_name", "borrower_old_last_name")
+    search_fields = ("borrower__first_name", "borrower_last_name")
     inlines = [LoanSourceAdminInline, AmortizationAdminInline]
 
     def amount_display(self, obj):
