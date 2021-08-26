@@ -21,7 +21,6 @@ MIDDLEWARE = (
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    # 'sharky.middleware.GraphQLAuthErrorMiddleware',
 )
 
 INSTALLED_APPS = (
@@ -36,9 +35,6 @@ INSTALLED_APPS = (
     # 3rd party apps
     "django_extensions",
     "corsheaders",
-    "graphene_django",
-    "graphql_auth",
-    "graphql_jwt.refresh_token.apps.RefreshTokenConfig",
     # Local Apps
     "apps.accounts",
     "apps.lending",
@@ -71,59 +67,8 @@ DATABASES = {
 AUTH_USER_MODEL = "accounts.EmailUser"
 
 AUTHENTICATION_BACKENDS = [
-    "graphql_auth.backends.GraphQLAuthBackend",
     "django.contrib.auth.backends.ModelBackend",
 ]
-
-
-#####################
-# GRAPHENE SETTINGS #
-#####################
-GRAPHENE = {
-    "SCHEMA": "sharky.schema.schema",
-    "MIDDLEWARE": [
-        "graphql_jwt.middleware.JSONWebTokenMiddleware",
-    ],
-}
-
-
-################################
-# DJANGO GRAPHQL AUTH SETTINGS #
-################################
-GRAPHQL_AUTH = {
-    "LOGIN_ALLOWED_FIELDS": ["email"],
-    "REGISTER_MUTATION_FIELDS": {
-        "email": "String",
-        "first_name": "String",
-        "last_name": "String",
-        "phone": "String",
-    },
-    "USER_NODE_FILTER_FIELDS": {
-        "email": ["exact"],
-        "status__archived": ["exact"],
-        "status__verified": ["exact"],
-        "status__secondary_email": ["exact"],
-    },
-    "ACTIVATION_PATH_ON_EMAIL": "verify-email",
-    "PASSWORD_RESET_PATH_ON_EMAIL": "reset-pass",
-    "ALLOW_LOGIN_AFTER_VERIFY": True,
-}
-
-GRAPHQL_JWT = {
-    "JWT_ALLOW_ANY_CLASSES": [
-        "graphql_auth.mutations.Register",
-        "graphql_auth.mutations.VerifyAccount",
-        "graphql_auth.mutations.ResendActivationEmail",
-        "graphql_auth.mutations.SendPasswordResetEmail",
-        "graphql_auth.mutations.PasswordReset",
-        "graphql_auth.mutations.ObtainJSONWebToken",
-        "graphql_auth.mutations.VerifyToken",
-        "graphql_auth.mutations.RefreshToken",
-        "graphql_auth.mutations.RevokeToken",
-    ],
-    "JWT_VERIFY_EXPIRATION": True,
-    "JWT_LONG_RUNNING_REFRESH_TOKEN": True,
-}
 
 
 #############################################################################
@@ -144,7 +89,10 @@ class EmailSettings:
     FONT_CSS = (
         'font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;'
     )
-    FONT_CSS_HEADER = 'font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;'
+    FONT_CSS_HEADER = (
+        'font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", '
+        'Helvetica, Arial, "Lucida Grande", sans-serif;'
+    )
 
 
 EMAIL = EmailSettings()
@@ -214,7 +162,9 @@ TEMPLATES = [
 # password policies
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        "NAME": (
+            "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+        ),
     },
     {
         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
