@@ -31,31 +31,6 @@ class Bank(UUIDPrimaryKeyMixin):
         return f"{self.name} ({self.abbreviation})" if self.abbreviation else self.name
 
 
-class Borrower(UUIDPrimaryKeyMixin, TimeStampedModel):
-    """
-    The borrower of the loan.
-    """
-
-    first_name = models.CharField(max_length=30)
-    last_name = models.CharField(max_length=30)
-
-    class Meta:
-        verbose_name = _("Borrower")
-        verbose_name_plural = _("Borrowers")
-        ordering = ("last_name", "first_name")
-        unique_together = ("first_name", "last_name")
-
-    @property
-    def full_name(self) -> str:
-        """
-        Returns the full name of the borrower.
-        """
-        return f"{self.first_name} {self.last_name}"
-
-    def __str__(self) -> str:
-        return self.full_name
-
-
 class CapitalSource(UUIDPrimaryKeyMixin, TimeStampedModel):
     """
     Stores information about the source of the capital money(where the money used for
