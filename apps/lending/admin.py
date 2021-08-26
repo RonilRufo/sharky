@@ -32,6 +32,20 @@ class LoanSourceAdmin(admin.ModelAdmin):
 
     model = models.LoanSource
     inlines = [LoanSourceAmortizationAdminInline]
+    list_display = (
+        "capital_source",
+        "get_source_name_from_capital_source",
+        "loan",
+        "monthly_amortization",
+        "interest_rate",
+    )
+    list_filter = ("capital_source__source", "capital_source__bank")
+    search_fields = ("capital_source__bank__name", "capital_source__name")
+
+    def get_source_name_from_capital_source(self, obj):
+        return obj.capital_source.get_source_display()
+
+    get_source_name_from_capital_source.short_description = _("Source Type")
 
 
 class LoanSourceAdminInline(admin.StackedInline):
@@ -91,7 +105,7 @@ class LoanAdmin(admin.ModelAdmin):
         "payment_schedule",
         "is_completed",
     )
-    search_fields = ("borrower__first_name", "borrower_last_name")
+    search_fields = ("borrower__first_name", "borrower__last_name")
     inlines = [LoanSourceAdminInline, AmortizationAdminInline]
 
     def amount_display(self, obj):
