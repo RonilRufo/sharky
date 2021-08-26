@@ -16,3 +16,30 @@ exclude = '''
   | .*/migrations/.*\.py
 )
 '''
+
+[tool.poetry]
+name = "sharky"
+version = "0.1.0"
+description = ""
+authors = ["Ronil Rufo <ronil.rufo@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+Django = "^3.2.6"
+django-cors-headers = "^3.8.0"
+psycopg2 = "^2.9.1"
+Pillow = "^8.3.1"
+django-model-utils = "^4.1.1"
+requests = "^2.26.0"
+pre-commit = "^2.14.0"
+django-extensions = "^3.1.3"
+factory-boy = "^3.2.0"
+
+[tool.poetry.dev-dependencies]
+
+[tool.poetry.extras]
+prod = ["gunicorn"]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
