@@ -44,7 +44,7 @@ class Dashboard(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
             due_date__year=now.year,
             is_preterminated=False,
         ).aggregate(total_gained=Sum("amount_gained"))
-        return amortizations["total_gained"]
+        return amortizations["total_gained"] or 0
 
     def get_total_principal_receivables(self) -> int:
         """
@@ -91,7 +91,7 @@ class Dashboard(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
             .aggregate(total=Sum("receivables"))
         )
 
-        return math.floor(sources["total"])
+        return math.floor(sources["total"] or 0)
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
