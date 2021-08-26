@@ -36,7 +36,6 @@ INSTALLED_APPS = (
     # 3rd party apps
     "django_extensions",
     "corsheaders",
-    "graphene_django",
     "graphql_auth",
     "graphql_jwt.refresh_token.apps.RefreshTokenConfig",
     # Local Apps
@@ -74,17 +73,6 @@ AUTHENTICATION_BACKENDS = [
     "graphql_auth.backends.GraphQLAuthBackend",
     "django.contrib.auth.backends.ModelBackend",
 ]
-
-
-#####################
-# GRAPHENE SETTINGS #
-#####################
-GRAPHENE = {
-    "SCHEMA": "sharky.schema.schema",
-    "MIDDLEWARE": [
-        "graphql_jwt.middleware.JSONWebTokenMiddleware",
-    ],
-}
 
 
 ################################
@@ -144,7 +132,10 @@ class EmailSettings:
     FONT_CSS = (
         'font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;'
     )
-    FONT_CSS_HEADER = 'font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;'
+    FONT_CSS_HEADER = (
+        'font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", '
+        'Helvetica, Arial, "Lucida Grande", sans-serif;'
+    )
 
 
 EMAIL = EmailSettings()
@@ -214,7 +205,9 @@ TEMPLATES = [
 # password policies
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        "NAME": (
+            "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+        ),
     },
     {
         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
