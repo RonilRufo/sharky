@@ -7,8 +7,6 @@ from django.contrib.auth.forms import (
     ReadOnlyPasswordHashField,
     UserCreationForm,
 )
-from django.utils.translation import ugettext_lazy as _
-from graphql_auth.models import UserStatus
 
 from .models import EmailUser
 
@@ -62,17 +60,6 @@ class MyUserCreationForm(SettingsUserForAdmin, UserCreationForm):
         raise forms.ValidationError(self.error_messages["duplicate_email"])
 
 
-class UserStatusInline(admin.StackedInline):
-    """
-    Inline admin view for :model:`graphql_auth.UserStatus`
-    """
-
-    model = UserStatus
-    can_delete = False
-    verbose_name_plural = _("User Status")
-    fields = ("verified", "archived")
-
-
 class EmailUserAdmin(UserAdmin):
     form = UserChangeForm
     add_form = MyUserCreationForm
@@ -122,7 +109,6 @@ class EmailUserAdmin(UserAdmin):
             },
         ),
     )
-    inlines = [UserStatusInline]
 
 
 admin.site.register(EmailUser, EmailUserAdmin)

@@ -3,8 +3,6 @@ Pillow
 psycopg2
 Django
 django-cors-headers
-django-graphql-extensions
-django-graphql-auth
 django-model-utils
 requests
 pre-commit
