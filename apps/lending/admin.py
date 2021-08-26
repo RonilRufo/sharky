@@ -96,11 +96,11 @@ class LoanAdmin(admin.ModelAdmin):
         "is_completed",
     )
     list_filter = (
-        "borrower_old",
+        "borrower",
         "payment_schedule",
         "is_completed",
     )
-    search_fields = ("borrower_old__first_name", "borrower_old_last_name")
+    search_fields = ("borrower__first_name", "borrower_last_name")
     inlines = [LoanSourceAdminInline, AmortizationAdminInline]
 
     def amount_display(self, obj):

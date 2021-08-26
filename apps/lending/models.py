@@ -140,13 +140,6 @@ class Loan(UUIDPrimaryKeyMixin, TimeStampedModel):
         on_delete=models.CASCADE,
         null=True,
     )
-    borrower_old = models.ForeignKey(
-        "lending.Borrower",
-        related_name="legacy_loans",
-        on_delete=models.CASCADE,
-        blank=True,
-        null=True,
-    )
     borrower_name = models.CharField(
         max_length=128,
         blank=True,
@@ -464,7 +457,7 @@ class Amortization(UUIDPrimaryKeyMixin, TimeStampedModel):
 
     def __str__(self) -> str:
         amount_due = intcomma(self.amount_due)
-        return f"{self.loan.borrower_old} | {amount_due} | {self.due_date}"
+        return f"{self.loan.borrower} | {amount_due} | {self.due_date}"
 
     @property
     def payment_stage(self) -> str:
