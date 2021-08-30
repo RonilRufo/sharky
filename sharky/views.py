@@ -120,6 +120,6 @@ class Index(RedirectView):
         if user.is_authenticated and user.is_superuser:
             return reverse_lazy("dashboard")
         elif user.is_authenticated and user.is_borrower:
-            return reverse_lazy("lending:loans-active")
+            return reverse_lazy("lending:borrowers-detail", args=(user.pk,))
         else:
             return reverse_lazy("accounts:login")

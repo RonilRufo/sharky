@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+
+{% load humanize %}
+{% load static %}
+{% load i18n %}
+
+{% block nav_profile %}active{% endblock %}
+{% block nav_borrowers %}active{% endblock %}
+
+{% block content %}
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">{{ borrower.get_full_name }}</h1>
+    </div>
+
+    <!-- Content Row -->
+    <div class="row">
+
+        <!-- Earnings (Monthly) Card Example -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                {% trans "Total Past Due Payable" %}
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ total_payable|intcomma }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-coins fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if request.user.is_superuser %}
+            <!-- Earnings (Monthly) Card Example -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-success shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                    {% trans "Total Past Due Amount Earned" %}
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                    {{ total_amount_earned|intcomma }}
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Earnings (Monthly) Card Example -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-danger shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                    {% trans "Total Past Due Principal Receivables" %}
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Pending Requests Card Example -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Active Loans</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ active_loans.count }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-book-open fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="clearfix">&nbsp;</div>
+
+    <!-- Tabs -->
+    <div class="row">
+
+        <div class="col-xl-12 col-md-12 mb-12">
+            <nav>
+                <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                    <a class="nav-link active" id="nav-past-due-tab" data-toggle="tab" href="#nav-past-due" role="tab" aria-controls="nav-past-due" aria-selected="true">{% trans "Past Due Amortizations" %}({{ amortizations.count }})</a>
+                    <a class="nav-link" id="nav-active-loans-tab" data-toggle="tab" href="#nav-active-loans" role="tab" aria-controls="nav-active-loans" aria-selected="false">{% trans "Active Loans" %}</a>
+                </div>
+            </nav>
+
+            <div class="clearfix">&nbsp;</div>
+
+            <div class="tab-content" id="tabContent">
+                <div class="tab-pane fade show active" id="nav-past-due" role="tabpanel" aria-labelledby="nav-past-due">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
+                            <thead class="table-primary">
+                                <tr>
+                                    <th>Loan Date</th>
+                                    {% if request.user.is_superuser %}
+                                        <th>Loan Sources</th>
+                                    {% endif %}
+                                    <th>Payment Stage</th>
+                                    <th>Amount Due</th>
+                                    <th>Due Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for amortization in amortizations %}
+                                    <tr>
+                                        <td>{{ amortization.loan.loan_date|date:"M d, Y" }}</td>
+                                        {% if request.user.is_superuser %}
+                                            <td>
+                                                <ul>
+                                                    {% for source in amortization.loan.sources.all %}
+                                                        <li>{{ source.capital_source.name }}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </td>
+                                        {% endif %}
+                                        <td>{{ amortization.payment_stage }}</td>
+                                        <td>{{ amortization.amount_due|floatformat:0|intcomma }}</td>
+                                        <td>{{ amortization.due_date|date:"M d, Y" }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="nav-active-loans" role="tabpanel" aria-labelledby="nav-active-loans">
+                    <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>Loan Date</th>
+                                <th>Amount</th>
+                                <th>Interest Rate</th>
+                                {% if request.user.is_superuser %}
+                                    <th>Interest Gained</th>
+                                    <th>Loan Sources</th>
+                                {% endif %}
+                                <th>Amortization</th>
+                                <th>Term</th>
+                                <th>Payments Settled</th>
+                                <th>Next Payment Due Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for loan in active_loans %}
+                                <tr>
+                                    <td>{{ loan.loan_date|date:"M d, Y" }}</td>
+                                    <td>{{ loan.amount|floatformat:0|intcomma }}</td>
+                                    <td>{{ loan.interest_rate }}%</td>
+                                    {% if request.user.is_superuser %}
+                                        <td>{{ loan.interest_gained|floatformat:0|intcomma }}</td>
+                                        <td>
+                                            <ul>
+                                                {% for source in loan.sources.all %}
+                                                    <li>{{ source.capital_source.name }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        </td>
+                                    {% endif %}
+                                    <td>{{ loan.amortization_amount_due|floatformat:0|intcomma }}</td>
+                                    <td>{{ loan.term }} month{{ loan.term|pluralize }}</td>
+                                    <td>{{ loan.payments_made }}</td>
+                                    <td>{{ loan.next_payment_due_date|date:"M d, Y" }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <!-- End Tabs-->
+
+    <!-- Content Row -->
+
+    <div class="row">
+
+
+    <!-- Content Row -->
+    <div class="row">
+
+
+
+        <div class="clearfix">&nbsp;</div>
+    </div>
+
+{% endblock %}
