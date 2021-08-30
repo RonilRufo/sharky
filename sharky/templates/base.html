@@ -3,6 +3,7 @@
 
 {% load humanize %}
 {% load static %}
+{% load i18n %}
 
 <head>
 
@@ -55,6 +56,13 @@
                       <span>Dashboard</span></a>
               </li>
 
+            {% else %}
+              <!-- Nav Item - Dashboard -->
+              <li class="nav-item {% block nav_profile %}{% endblock %}">
+                <a class="nav-link" href="{% url 'lending:borrowers-detail' request.user.pk %}">
+                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <span>Dashboard</span></a>
+              </li>
               <!-- Divider -->
               <hr class="sidebar-divider">
             {% endif %}
@@ -73,10 +81,32 @@
 
             <!-- Nav Item - Active Loans -->
             <li class="nav-item {% block nav_active_loans %}{% endblock %}">
-                <a class="nav-link" href="{% url 'lending:loans-active' %}">
+            <a class="nav-link" href="{% url 'lending:loans-active' %}">
                     <i class="fas fa-fw fa-chart-area"></i>
                     <span>Active Loans</span></a>
             </li>
+
+            {% if request.user.is_superuser %}
+                <!-- Nav Item - Borrowers -->
+                <li class="nav-item {% block nav_borrowers %}{% endblock %}">
+                    <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseBorrowers"
+                        aria-expanded="true" aria-controls="collapseBorrowers">
+                        <i class="fas fa-fw fa-users"></i>
+                        <span>{% trans "Borrowers" %}</span>
+                    </a>
+                    <div id="collapseBorrowers" class="collapse {% if borrower %}show{% endif %}" aria-labelledby="headingBorrowers"
+                        data-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <!-- <h6 class="collapse-header">Borrowers:</h6> -->
+                            {% for brwr in borrowers_list %}
+                                <a class="collapse-item {% if borrower == brwr %}active{% endif %}" href="{% url 'lending:borrowers-detail' brwr.pk %}">
+                                    {{ brwr.get_full_name }}
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </li>
+            {% endif %}
 
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
