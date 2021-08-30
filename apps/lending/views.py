@@ -1,11 +1,16 @@
+import math
+from decimal import Decimal
+from typing import Any, Dict, List, Union
+
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Count, F, Q, Sum
+from django.db.models import Count, F, Q, QuerySet, Sum
 from django.http import Http404
 from django.http.response import JsonResponse
 from django.utils import timezone
-from django.views.generic import ListView, View
+from django.views.generic import DetailView, ListView, View
 
+from apps.accounts.models import EmailUser
 from apps.lending.models import Amortization, CapitalSource, Loan, LoanSource
 
 
@@ -212,3 +217,55 @@ class ActiveLoans(LoginRequiredMixin, ListView):
             return queryset
 
         return queryset.filter(borrower=self.request.user)
+
+
+class BorrowerDetail(LoginRequiredMixin, DetailView):
+    """
+    Retrieves a single borrower(:model:`accounts.EmailUser`) object.
+    """
+
+    queryset = EmailUser.objects.filter(is_borrower=True)
+    context_object_name = "borrower"
+    template_name = "lending/borrower/detail.html"
+
+    def get_past_due_amortizations(self) -> Union[QuerySet, List[Amortization]]:
+        """
+        Returns the past due amortizations of the selected borrower.
+        """
+        obj = self.get_object()
+        return Amortization.objects.filter(
+            loan__borrower=obj,
+            due_date__lte=timezone.now().date(),
+            paid_date__isnull=True,
+        )
+
+    def get_total_past_due_payables(self) -> Union[int, Decimal]:
+        """
+        Returns the total payable of the borrower from loans which are already past due.
+        """
+        amortizations = self.get_past_due_amortizations().aggregate(
+            total_payable=Sum("amount_due")
+        )
+        return math.ceil(amortizations["total_payable"] or 0)
+
+    def get_total_past_due_amount_earned(self) -> Union[int, Decimal]:
+        """
+        Returns the total amount earned based on the past due amortizations.
+        """
+        amortizations = self.get_past_due_amortizations().aggregate(
+            total_earned=Sum("amount_gained")
+        )
+        return math.ceil(amortizations["total_earned"] or 0)
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+
+        context.update(
+            {
+                "total_amount_earned": self.get_total_past_due_amount_earned(),
+                "total_payable": self.get_total_past_due_payables(),
+                "active_loans": self.get_object().loans.filter(is_completed=False),
+                "amortizations": self.get_past_due_amortizations(),
+            }
+        )
+        return context

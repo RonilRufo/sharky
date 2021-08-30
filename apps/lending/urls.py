@@ -5,6 +5,7 @@ from django.urls import path
 
 from .views import (
     ActiveLoans,
+    BorrowerDetail,
     EarningsGraph,
     LoanSourcesGraph,
     MoneyReturnedGraph,
@@ -22,4 +23,5 @@ urlpatterns = [
     ),
     path("amortization/past-due/", PastDueList.as_view(), name="past-due-list"),
     path("loans/active/", ActiveLoans.as_view(), name="loans-active"),
+    path("borrowers/<uuid:pk>/", BorrowerDetail.as_view(), name="borrowers-detail"),
 ]
