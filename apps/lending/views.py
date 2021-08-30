@@ -49,6 +49,7 @@ class EarningsGraph(View):
                 LoanSource.objects.filter(
                     loan__amortizations__in=principal_amortization,
                     capital_source__source=CapitalSource.SOURCES.savings,
+                    capital_source__from_third_party=False,
                 )
                 .distinct()
                 .annotate(receivables=F("amount") / F("loan__term"))
@@ -110,6 +111,7 @@ class MoneyReturnedGraph(View):
                 LoanSource.objects.filter(
                     loan__amortizations__in=principal_amortization,
                     capital_source__source=CapitalSource.SOURCES.savings,
+                    capital_source__from_third_party=False,
                 )
                 .distinct()
                 .annotate(receivables=F("amount") / F("loan__term"))
