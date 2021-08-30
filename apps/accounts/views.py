@@ -22,7 +22,10 @@ class Login(LoginView):
         Returns the redirect URL upon successful login.
         """
         if self.request.user.is_borrower:
-            return reverse_lazy("lending:loans-active")
+            return reverse_lazy(
+                "lending:borrowers-detail",
+                args=(self.request.user.pk,),
+            )
 
         return reverse_lazy("dashboard")
 
