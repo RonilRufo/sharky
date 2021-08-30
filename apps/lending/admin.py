@@ -73,7 +73,8 @@ class CapitalSourceAdmin(admin.ModelAdmin):
     Admin view for :model:`lending.CapitalSource`
     """
 
-    list_display = ("name", "source", "bank")
+    list_display = ("name", "source", "bank", "from_third_party")
+    list_filter = ("from_third_party",)
 
     def source(self, obj) -> str:
         return obj.get_source_display()

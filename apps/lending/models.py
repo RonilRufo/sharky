@@ -54,6 +54,12 @@ class CapitalSource(UUIDPrimaryKeyMixin, TimeStampedModel):
         max_length=64,
         help_text=_("Reference name of the source account."),
     )
+    from_third_party = models.BooleanField(
+        default=False,
+        help_text=_(
+            "If the capital source came from another person other than the owner."
+        ),
+    )
 
     class Meta:
         verbose_name = _("Capital Source")
@@ -84,6 +90,7 @@ class LoanSourceQuerySet(models.QuerySet):
             amount_gained=Case(
                 When(
                     capital_source__source=CapitalSource.SOURCES.savings,
+                    capital_source__from_third_party=False,
                     then=F("amount") * (F("loan__interest_rate") / 100),
                 ),
                 When(
@@ -248,7 +255,8 @@ class Loan(UUIDPrimaryKeyMixin, TimeStampedModel):
         """
         amount = 0
         sources = self.sources.filter(
-            capital_source__source=CapitalSource.SOURCES.savings
+            capital_source__source=CapitalSource.SOURCES.savings,
+            capital_source__from_third_party=False,
         )
         if sources.exists():
             receivable = sources.annotate(

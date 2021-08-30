@@ -54,7 +54,8 @@ class Dashboard(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
 
         sources = (
             LoanSource.objects.filter(
-                capital_source__source=CapitalSource.SOURCES.savings
+                capital_source__source=CapitalSource.SOURCES.savings,
+                capital_source__from_third_party=False,
             )
             .annotate(
                 receivables=Case(
