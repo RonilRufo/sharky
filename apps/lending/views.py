@@ -4,6 +4,7 @@ from typing import Any, Dict, List, Union
 
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
 from django.db.models import Count, F, Q, QuerySet, Sum
 from django.http import Http404
 from django.http.response import JsonResponse
@@ -227,6 +228,13 @@ class BorrowerDetail(LoginRequiredMixin, DetailView):
     queryset = EmailUser.objects.filter(is_borrower=True)
     context_object_name = "borrower"
     template_name = "lending/borrower/detail.html"
+
+    def get_object(self) -> EmailUser:
+        obj = super().get_object()
+        if self.request.user.is_superuser or self.request.user == obj:
+            return obj
+
+        raise PermissionDenied()
 
     def get_past_due_amortizations(self) -> Union[QuerySet, List[Amortization]]:
         """
