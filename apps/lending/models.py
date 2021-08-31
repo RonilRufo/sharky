@@ -387,6 +387,27 @@ class LoanSource(UUIDPrimaryKeyMixin, TimeStampedModel):
         income = self.loan.amount * (self.interest_rate / 100)
         return round(income, 2)
 
+    @property
+    def capital_source_payment_amount(self) -> Decimal:
+        """
+        The amount to be paid to a capital source if a third-party provider exists.
+        """
+        if self.capital_source.provider:
+            loan = self.loan
+            amortization_count = (
+                loan.term if loan.is_payment_schedule_monthly else loan.term * 2
+            )
+            principal = self.amount / amortization_count
+            income = self.amount * (loan.interest_rate / 100)
+            interest = round(income, 2)
+            if not loan.is_payment_schedule_monthly:
+                interest /= 2
+
+            total = principal + interest
+            return round(total, 2)
+
+        return 0
+
 
 class LoanSourceAmortization(UUIDPrimaryKeyMixin):
     """
