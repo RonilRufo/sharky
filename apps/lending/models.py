@@ -101,7 +101,7 @@ class LoanSourceQuerySet(models.QuerySet):
             amount_gained=Case(
                 When(
                     capital_source__source=CapitalSource.SOURCES.savings,
-                    capital_source__from_third_party=False,
+                    capital_source__provider__isnull=True,
                     then=F("amount") * (F("loan__interest_rate") / 100),
                 ),
                 When(
@@ -267,7 +267,7 @@ class Loan(UUIDPrimaryKeyMixin, TimeStampedModel):
         amount = 0
         sources = self.sources.filter(
             capital_source__source=CapitalSource.SOURCES.savings,
-            capital_source__from_third_party=False,
+            capital_source__provider__isnull=True,
         )
         if sources.exists():
             receivable = sources.annotate(
