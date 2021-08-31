@@ -54,12 +54,6 @@ class CapitalSource(UUIDPrimaryKeyMixin, TimeStampedModel):
         max_length=64,
         help_text=_("Reference name of the source account."),
     )
-    from_third_party = models.BooleanField(
-        default=False,
-        help_text=_(
-            "If the capital source came from another person other than the owner."
-        ),
-    )
     provider = models.ForeignKey(
         get_user_model(),
         related_name="capital_sources",
