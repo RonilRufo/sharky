@@ -66,14 +66,18 @@ class EmailUserAdmin(UserAdmin):
     change_password_form = AdminPasswordChangeForm
     actions_on_bottom = True
     ordering = ("email",)
-    list_filter = ()
+    list_filter = (
+        "is_superuser",
+        "is_borrower",
+        "is_capital_source_provider",
+    )
     list_display = (
         "email",
         "first_name",
         "last_name",
-        "phone",
         "is_superuser",
-        "is_developer",
+        "is_borrower",
+        "is_capital_source_provider",
     )
     search_fields = ("email", "last_name", "first_name")
     add_fieldsets = (
@@ -104,6 +108,7 @@ class EmailUserAdmin(UserAdmin):
                 "fields": (
                     "is_developer",
                     "is_borrower",
+                    "is_capital_source_provider",
                     "is_superuser",
                 ),
             },

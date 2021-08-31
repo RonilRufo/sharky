@@ -54,10 +54,15 @@ class CapitalSource(UUIDPrimaryKeyMixin, TimeStampedModel):
         max_length=64,
         help_text=_("Reference name of the source account."),
     )
-    from_third_party = models.BooleanField(
-        default=False,
+    provider = models.ForeignKey(
+        get_user_model(),
+        related_name="capital_sources",
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
         help_text=_(
-            "If the capital source came from another person other than the owner."
+            "The third-party provider of the capital source other than the owner. If "
+            "the provider is the owner, leave this blank."
         ),
     )
 
@@ -77,6 +82,30 @@ class CapitalSource(UUIDPrimaryKeyMixin, TimeStampedModel):
         return self.source == self.SOURCES.savings
 
 
+class CapitalSourcePayment(UUIDPrimaryKeyMixin):
+    """
+    Stores information about the payment made to a capital source provider.
+    """
+
+    loan_source = models.ForeignKey(
+        "lending.LoanSource",
+        related_name="capital_source_payments",
+        on_delete=models.CASCADE,
+    )
+    amount = models.DecimalField(max_digits=9, decimal_places=2)
+    due_date = models.DateField()
+    paid_date = models.DateField(blank=True, null=True)
+
+    class Meta:
+        verbose_name = _("Capital Source Payment")
+        verbose_name_plural = _("Capital Source Payments")
+        ordering = ("due_date",)
+
+    def __str__(self) -> str:
+        amount = intcomma(self.amount)
+        return f"{self.loan_source} | {amount} | {self.due_date}"
+
+
 class LoanSourceQuerySet(models.QuerySet):
     """
     Custom queryset for :model:`lending.LoanSource`
@@ -90,7 +119,7 @@ class LoanSourceQuerySet(models.QuerySet):
             amount_gained=Case(
                 When(
                     capital_source__source=CapitalSource.SOURCES.savings,
-                    capital_source__from_third_party=False,
+                    capital_source__provider__isnull=True,
                     then=F("amount") * (F("loan__interest_rate") / 100),
                 ),
                 When(
@@ -256,7 +285,7 @@ class Loan(UUIDPrimaryKeyMixin, TimeStampedModel):
         amount = 0
         sources = self.sources.filter(
             capital_source__source=CapitalSource.SOURCES.savings,
-            capital_source__from_third_party=False,
+            capital_source__provider__isnull=True,
         )
         if sources.exists():
             receivable = sources.annotate(
@@ -357,6 +386,27 @@ class LoanSource(UUIDPrimaryKeyMixin, TimeStampedModel):
 
         income = self.loan.amount * (self.interest_rate / 100)
         return round(income, 2)
+
+    @property
+    def capital_source_payment_amount(self) -> Decimal:
+        """
+        The amount to be paid to a capital source if a third-party provider exists.
+        """
+        if self.capital_source.provider:
+            loan = self.loan
+            amortization_count = (
+                loan.term if loan.is_payment_schedule_monthly else loan.term * 2
+            )
+            principal = self.amount / amortization_count
+            income = self.amount * (loan.interest_rate / 100)
+            interest = round(income, 2)
+            if not loan.is_payment_schedule_monthly:
+                interest /= 2
+
+            total = principal + interest
+            return round(total, 2)
+
+        return 0
 
 
 class LoanSourceAmortization(UUIDPrimaryKeyMixin):
