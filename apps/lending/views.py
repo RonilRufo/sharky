@@ -256,6 +256,24 @@ class BorrowerDetail(LoginRequiredMixin, DetailView):
         )
         return math.ceil(amortizations["total_payable"] or 0)
 
+    def get_total_principal_receivables(self) -> Union[int, Decimal]:
+        """
+        Returns the total principal receivables of the borrower from loans which are
+        already past due.
+        """
+        amortizations = self.get_past_due_amortizations()
+        receivable = (
+            LoanSource.objects.filter(
+                loan__amortizations__in=amortizations,
+                capital_source__source=CapitalSource.SOURCES.savings,
+                capital_source__from_third_party=False,
+            )
+            .distinct()
+            .annotate(receivables=F("amount") / F("loan__term"))
+            .aggregate(total=Sum("receivables"))
+        )
+        return math.ceil(receivable["total"] or 0)
+
     def get_total_past_due_amount_earned(self) -> Union[int, Decimal]:
         """
         Returns the total amount earned based on the past due amortizations.
@@ -272,6 +290,7 @@ class BorrowerDetail(LoginRequiredMixin, DetailView):
             {
                 "total_amount_earned": self.get_total_past_due_amount_earned(),
                 "total_payable": self.get_total_past_due_payables(),
+                "total_principal": self.get_total_principal_receivables(),
                 "active_loans": self.get_object().loans.filter(is_completed=False),
                 "amortizations": self.get_past_due_amortizations(),
             }
