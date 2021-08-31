@@ -60,6 +60,17 @@ class CapitalSource(UUIDPrimaryKeyMixin, TimeStampedModel):
             "If the capital source came from another person other than the owner."
         ),
     )
+    provider = models.ForeignKey(
+        get_user_model(),
+        related_name="capital_sources",
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        help_text=_(
+            "The third-party provider of the capital source other than the owner. If "
+            "the provider is the owner, leave this blank."
+        ),
+    )
 
     class Meta:
         verbose_name = _("Capital Source")
