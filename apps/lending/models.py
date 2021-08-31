@@ -82,6 +82,30 @@ class CapitalSource(UUIDPrimaryKeyMixin, TimeStampedModel):
         return self.source == self.SOURCES.savings
 
 
+class CapitalSourcePayment(UUIDPrimaryKeyMixin):
+    """
+    Stores information about the payment made to a capital source provider.
+    """
+
+    loan_source = models.ForeignKey(
+        "lending.LoanSource",
+        related_name="capital_source_payments",
+        on_delete=models.CASCADE,
+    )
+    amount = models.DecimalField(max_digits=9, decimal_places=2)
+    due_date = models.DateField()
+    paid_date = models.DateField(blank=True, null=True)
+
+    class Meta:
+        verbose_name = _("Capital Source Payment")
+        verbose_name_plural = _("Capital Source Payments")
+        ordering = ("due_date",)
+
+    def __str__(self) -> str:
+        amount = intcomma(self.amount)
+        return f"{self.loan_source} | {amount} | {self.due_date}"
+
+
 class LoanSourceQuerySet(models.QuerySet):
     """
     Custom queryset for :model:`lending.LoanSource`
