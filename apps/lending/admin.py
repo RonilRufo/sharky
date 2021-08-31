@@ -14,6 +14,16 @@ class AmortizationAdminInline(admin.TabularInline):
     model = models.Amortization
 
 
+class CapitalSourcePaymentAdminInline(admin.TabularInline):
+    """
+    Admin inline view for :model:`lending.CapitalSourcePayment`
+    """
+
+    model = models.CapitalSourcePayment
+    extra = 1
+    max = 2
+
+
 class LoanSourceAmortizationAdminInline(admin.TabularInline):
     """
     Admin inline view for :model:`lending.LoanSourceAmortization`
@@ -30,8 +40,9 @@ class LoanSourceAdmin(admin.ModelAdmin):
     Admin view for :model:`lending.LoanSource`
     """
 
+    actions = ["generate_capital_source_payments"]
     model = models.LoanSource
-    inlines = [LoanSourceAmortizationAdminInline]
+    inlines = [CapitalSourcePaymentAdminInline, LoanSourceAmortizationAdminInline]
     list_display = (
         "capital_source",
         "get_source_name_from_capital_source",
@@ -46,6 +57,43 @@ class LoanSourceAdmin(admin.ModelAdmin):
         return obj.capital_source.get_source_display()
 
     get_source_name_from_capital_source.short_description = _("Source Type")
+
+    def generate_capital_source_payments(self, request, queryset):
+        """
+        Generates capita source payments for the selected loan sources.
+        """
+        for source in queryset:
+            # The number of payments will depend on whether the payment schedule is
+            # monthly or bi-monthly. If monthly, then the number of payments will be
+            # equal to the loan's term. If bi-monthly, it means there will be 2 payments
+            # for each month which should be equal to twice the value of term.
+            loan = source.loan
+            count = loan.term if loan.is_payment_schedule_monthly else loan.term * 2
+
+            payments = []
+            due_date = loan.first_payment_date
+            for schedule in range(count):
+                payments.append(
+                    models.CapitalSourcePayment(
+                        loan_source=source,
+                        amount=source.capital_source_payment_amount,
+                        due_date=due_date,
+                    )
+                )
+
+                if loan.is_payment_schedule_monthly:
+                    due_date += relativedelta(months=1)
+                else:
+                    due_date += relativedelta(days=15)
+
+            if payments:
+                models.CapitalSourcePayment.objects.bulk_create(payments)
+
+        messages.success(request, _("Successfully generated capital source payments."))
+
+    generate_capital_source_payments.short_description = _(
+        "Generate Capital Source Payments"
+    )
 
 
 class LoanSourceAdminInline(admin.StackedInline):
