@@ -100,8 +100,8 @@ class MoneyReturnedGraph(View):
 
             amortizations = Amortization.objects.filter(
                 ~Q(amort_type=Amortization.AMORTIZATION_TYPES.principal_only),
-                due_date__month=paid_date.month,
-                due_date__year=paid_date.year,
+                paid_date__month=paid_date.month,
+                paid_date__year=paid_date.year,
                 is_preterminated=False,
             ).aggregate(total_gained=Sum("amount_gained"))
 
