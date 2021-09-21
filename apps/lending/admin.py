@@ -21,6 +21,7 @@ class CapitalSourcePaymentAdminInline(admin.TabularInline):
 
     model = models.CapitalSourcePayment
     extra = 1
+    min = 0
     max = 2
 
 
