@@ -74,8 +74,8 @@
 
             <!-- Nav Item - Amortizations -->
             <li class="nav-item {% if show_amortization_menu %}active{% endif %}">
-                <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseAmortizations"
-                    aria-expanded="true" aria-controls="collapseAmortizations">
+                <a class="nav-link {% if not show_amortization_menu %}collapsed{% endif %}" href="#" data-toggle="collapse" data-target="#collapseAmortizations"
+                    aria-expanded="{% if show_amortization_menu %}true{% else %}false{% endif %}" aria-controls="collapseAmortizations">
                     <i class="fas fa-fw fa-file-invoice-dollar"></i>
                     <span>{% trans "Amortizations" %}</span>
                 </a>
@@ -103,8 +103,8 @@
             {% if request.user.is_superuser %}
                 <!-- Nav Item - Borrowers -->
                 <li class="nav-item {% block nav_borrowers %}{% endblock %}">
-                    <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseBorrowers"
-                        aria-expanded="true" aria-controls="collapseBorrowers">
+                    <a class="nav-link {% if not borrower %}collapsed{% endif %}" href="#" data-toggle="collapse" data-target="#collapseBorrowers"
+                        aria-expanded="{% if borrower %}true{% else %}false{% endif %}" aria-controls="collapseBorrowers">
                         <i class="fas fa-fw fa-users"></i>
                         <span>{% trans "Borrowers" %}</span>
                     </a>
