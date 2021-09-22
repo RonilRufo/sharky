@@ -72,18 +72,25 @@
                 Loans
             </div>
 
-            <!-- Nav Item - Past Due -->
-            <li class="nav-item {% block nav_past_due %}{% endblock %}">
-                <a class="nav-link" href="{% url 'lending:past-due-list' %}">
-                    <i class="fas fa-fw fa-chart-area"></i>
-                    <span>Past Due</span></a>
-            </li>
-
-            <!-- Nav Item - Upcoming Due -->
-            <li class="nav-item {% block nav_upcoming_due %}{% endblock %}">
-                <a class="nav-link" href="{% url 'lending:upcoming-due-list' %}">
-                    <i class="fas fa-fw fa-chart-area"></i>
-                    <span>Upcoming Due</span></a>
+            <!-- Nav Item - Amortizations -->
+            <li class="nav-item {% if show_amortization_menu %}active{% endif %}">
+                <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseAmortizations"
+                    aria-expanded="true" aria-controls="collapseAmortizations">
+                    <i class="fas fa-fw fa-file-invoice-dollar"></i>
+                    <span>{% trans "Amortizations" %}</span>
+                </a>
+                <div id="collapseAmortizations" class="collapse {% if show_amortization_menu %}show{% endif %}" aria-labelledby="headingBorrowers"
+                    data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <!-- <h6 class="collapse-header">Amortizations:</h6> -->
+                        <a class="collapse-item {% block nav_past_due %}{% endblock %}" href="{% url 'lending:past-due-list' %}">
+                            {% trans "Past Due" %}
+                        </a>
+                        <a class="collapse-item {% block nav_upcoming_due %}{% endblock %}" href="{% url 'lending:upcoming-due-list' %}">
+                            {% trans "Upcoming Due" %}
+                        </a>
+                    </div>
+                </div>
             </li>
 
             <!-- Nav Item - Active Loans -->

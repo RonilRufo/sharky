@@ -177,7 +177,14 @@ class LoanSourcesGraph(View):
         )
 
 
-class PastDueList(LoginRequiredMixin, ListView):
+class ShowAmortizationContextMixin:
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        data.update({"show_amortization_menu": True})
+        return data
+
+
+class PastDueList(LoginRequiredMixin, ShowAmortizationContextMixin, ListView):
     """
     Displays a list of amortization that are past due.
     """
@@ -200,7 +207,7 @@ class PastDueList(LoginRequiredMixin, ListView):
         return queryset.filter(loan__borrower=self.request.user)
 
 
-class UpcomingDueList(LoginRequiredMixin, ListView):
+class UpcomingDueList(LoginRequiredMixin, ShowAmortizationContextMixin, ListView):
     """
     Displays a list of amortization that are due in the next 7 days.
     """
