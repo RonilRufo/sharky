@@ -10,6 +10,7 @@ from .views import (
     LoanSourcesGraph,
     MoneyReturnedGraph,
     PastDueList,
+    UpcomingDueList,
 )
 
 app_name = "lending"
@@ -22,6 +23,11 @@ urlpatterns = [
         name="money-returned-graph",
     ),
     path("amortization/past-due/", PastDueList.as_view(), name="past-due-list"),
+    path(
+        "amortization/upcoming-due/",
+        UpcomingDueList.as_view(),
+        name="upcoming-due-list",
+    ),
     path("loans/active/", ActiveLoans.as_view(), name="loans-active"),
     path("borrowers/<uuid:pk>/", BorrowerDetail.as_view(), name="borrowers-detail"),
 ]

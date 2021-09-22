@@ -177,7 +177,14 @@ class LoanSourcesGraph(View):
         )
 
 
-class PastDueList(LoginRequiredMixin, ListView):
+class ShowAmortizationContextMixin:
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        data.update({"show_amortization_menu": True})
+        return data
+
+
+class PastDueList(LoginRequiredMixin, ShowAmortizationContextMixin, ListView):
     """
     Displays a list of amortization that are past due.
     """
@@ -192,6 +199,32 @@ class PastDueList(LoginRequiredMixin, ListView):
     def get_queryset(self, *args, **kwargs):
         """
         Custom queryset for past due list.
+        """
+        queryset = super().get_queryset(*args, **kwargs)
+        if self.request.user.is_superuser:
+            return queryset
+
+        return queryset.filter(loan__borrower=self.request.user)
+
+
+class UpcomingDueList(LoginRequiredMixin, ShowAmortizationContextMixin, ListView):
+    """
+    Displays a list of amortization that are due in the next 7 days.
+    """
+
+    queryset = Amortization.objects.filter(
+        due_date__range=(
+            timezone.now().date() + relativedelta(days=1),
+            timezone.now().date() + relativedelta(days=7),
+        ),
+        paid_date__isnull=True,
+    )
+    template_name = "lending/amortization/upcoming_due.html"
+    context_object_name = "amortizations"
+
+    def get_queryset(self, *args, **kwargs):
+        """
+        Custom queryset for upcoming due list.
         """
         queryset = super().get_queryset(*args, **kwargs)
         if self.request.user.is_superuser:
