@@ -111,28 +111,33 @@ class LoanSourceQuerySet(models.QuerySet):
     Custom queryset for :model:`lending.LoanSource`
     """
 
-    def total_amount_earned(self):
+    def total_deductibles(self):
         """
-        Returns the total amount earned from the selected loan sources.
+        Returns the total deductibles from the overall interest from the selected loan
+        sources.
         """
         amount = self.annotate(
-            amount_gained=Case(
+            deductibles=Case(
                 When(
                     capital_source__source=CapitalSource.SOURCES.savings,
-                    capital_source__provider__isnull=True,
-                    then=F("amount") * (F("loan__interest_rate") / 100),
+                    loan__payment_schedule=Loan.PAYMENT_SCHEDULES.monthly,
+                    # capital_source__provider__isnull=True,
+                    then=F("amount") / F("loan__term"),
+                ),
+                When(
+                    capital_source__source=CapitalSource.SOURCES.savings,
+                    loan__payment_schedule=Loan.PAYMENT_SCHEDULES.bi_monthly,
+                    # capital_source__provider__isnull=True,
+                    then=F("amount") / (F("loan__term") * 2),
                 ),
                 When(
                     ~Q(capital_source__source=CapitalSource.SOURCES.savings),
-                    then=(
-                        F("amount")
-                        * ((F("loan__interest_rate") - F("interest_rate")) / 100)
-                    ),
+                    then=F("monthly_amortization"),
                 ),
                 default=Value(0),
                 output_field=DecimalField(),
             )
-        ).aggregate(total=Sum("amount_gained"))
+        ).aggregate(total=Sum("deductibles"))
         return math.floor(amount["total"]) if amount["total"] else 0
 
 
@@ -255,8 +260,10 @@ class Loan(UUIDPrimaryKeyMixin, TimeStampedModel):
         """
         Returns the total interest gained depending on the sources of the loan.
         """
-        gained_amount = self.sources.all().total_amount_earned()
-        return round(gained_amount, 2)
+        gained_amount = (
+            self.amortization_amount_due - self.sources.all().total_deductibles()
+        )
+        return math.floor(gained_amount)
 
     @property
     def total_interest_gained(self) -> Decimal:
