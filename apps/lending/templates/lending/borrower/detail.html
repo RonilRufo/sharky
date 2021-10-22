@@ -127,6 +127,7 @@
                                     {% endif %}
                                     <th>Payment Stage</th>
                                     <th>Amount Due</th>
+                                    <th>Amount Gained</th>
                                     <th>Due Date</th>
                                 </tr>
                             </thead>
@@ -145,6 +146,7 @@
                                         {% endif %}
                                         <td>{{ amortization.payment_stage }}</td>
                                         <td>{{ amortization.amount_due|floatformat:0|intcomma }}</td>
+                                        <td>{{ amortization.amount_gained|floatformat:0|intcomma }}</td>
                                         <td>{{ amortization.due_date|date:"M d, Y" }}</td>
                                     </tr>
                                 {% endfor %}
