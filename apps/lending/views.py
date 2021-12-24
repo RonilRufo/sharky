@@ -275,6 +275,9 @@ class ActiveLoans(LoginRequiredMixin, ListView):
         .filter(
             is_completed=False,
         )
+        .exclude(
+            borrower__is_borrower_active=False,
+        )
     )
     template_name = "lending/loan/list.html"
     context_object_name = "loans"
