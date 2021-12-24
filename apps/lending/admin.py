@@ -153,6 +153,7 @@ class LoanAdmin(admin.ModelAdmin):
         "borrower",
         "payment_schedule",
         "sources__capital_source__source",
+        "borrower__is_borrower_active",
         "is_completed",
     )
     search_fields = ("borrower__first_name", "borrower__last_name")
