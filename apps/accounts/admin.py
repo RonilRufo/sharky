@@ -69,6 +69,7 @@ class EmailUserAdmin(UserAdmin):
     list_filter = (
         "is_superuser",
         "is_borrower",
+        "is_borrower_active",
         "is_capital_source_provider",
     )
     list_display = (
@@ -77,6 +78,7 @@ class EmailUserAdmin(UserAdmin):
         "last_name",
         "is_superuser",
         "is_borrower",
+        "is_borrower_active",
         "is_capital_source_provider",
     )
     search_fields = ("email", "last_name", "first_name")
@@ -108,6 +110,7 @@ class EmailUserAdmin(UserAdmin):
                 "fields": (
                     "is_developer",
                     "is_borrower",
+                    "is_borrower_active",
                     "is_capital_source_provider",
                     "is_superuser",
                 ),
