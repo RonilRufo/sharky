@@ -24,26 +24,49 @@ class Dashboard(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
         """
         Returns the number of past due amortizations.
         """
-        return Amortization.objects.filter(
-            due_date__lte=timezone.now(), paid_date__isnull=True
-        ).count()
+        return (
+            Amortization.objects.filter(
+                due_date__lte=timezone.now(),
+                paid_date__isnull=True,
+            )
+            .exclude(
+                loan__borrower__is_borrower_active=False,
+            )
+            .count()
+        )
 
     def get_active_loans(self) -> int:
         """
         Returns the number of active loans.
         """
-        return Loan.objects.filter(is_completed=False).count()
+        return (
+            Loan.objects.filter(
+                is_completed=False,
+            )
+            .exclude(
+                borrower__is_borrower_active=False,
+            )
+            .count()
+        )
 
     def get_earnings_for_current_month(self) -> int:
         """
         Returns the earnings from all loans for the current month.
         """
         now = timezone.now()
-        amortizations = Amortization.objects.filter(
-            due_date__month=now.month,
-            due_date__year=now.year,
-            is_preterminated=False,
-        ).aggregate(total_gained=Sum("amount_gained"))
+        amortizations = (
+            Amortization.objects.filter(
+                due_date__month=now.month,
+                due_date__year=now.year,
+                is_preterminated=False,
+            )
+            .exclude(
+                loan__borrower__is_borrower_active=False,
+            )
+            .aggregate(
+                total_gained=Sum("amount_gained"),
+            )
+        )
         return amortizations["total_gained"] or 0
 
     def get_total_principal_receivables(self) -> int:
@@ -56,6 +79,9 @@ class Dashboard(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
             LoanSource.objects.filter(
                 capital_source__source=CapitalSource.SOURCES.savings,
                 capital_source__provider__isnull=True,
+            )
+            .exclude(
+                loan__borrower__is_borrower_active=False,
             )
             .annotate(
                 receivables=Case(
