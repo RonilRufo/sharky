@@ -314,10 +314,20 @@ class BorrowerDetail(LoginRequiredMixin, DetailView):
         Returns the past due amortizations of the selected borrower.
         """
         obj = self.get_object()
-        return Amortization.objects.filter(
-            loan__borrower=obj,
-            due_date__lte=timezone.now().date(),
-            paid_date__isnull=True,
+        return (
+            Amortization.objects.select_related(
+                "loan",
+                "loan__borrower",
+            )
+            .prefetch_related(
+                "loan__sources",
+                "loan__sources__capital_source",
+            )
+            .filter(
+                loan__borrower=obj,
+                due_date__lte=timezone.now().date(),
+                paid_date__isnull=True,
+            )
         )
 
     def get_total_past_due_payables(self) -> Union[int, Decimal]:
