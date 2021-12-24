@@ -264,7 +264,18 @@ class ActiveLoans(LoginRequiredMixin, ListView):
     Displays list of active loans.
     """
 
-    queryset = Loan.objects.filter(is_completed=False)
+    queryset = (
+        Loan.objects.select_related(
+            "borrower",
+        )
+        .prefetch_related(
+            "sources",
+            "sources__capital_source",
+        )
+        .filter(
+            is_completed=False,
+        )
+    )
     template_name = "lending/loan/list.html"
     context_object_name = "loans"
 
