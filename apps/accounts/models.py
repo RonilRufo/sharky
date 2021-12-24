@@ -80,6 +80,10 @@ class EmailUser(AbstractBaseUser, PermissionsMixin, UUIDPrimaryKeyMixin):
         default=False,
         help_text=_("If the user is a borrower or not."),
     )
+    is_borrower_active = models.BooleanField(
+        default=True,
+        help_text=_("If the borrower is actively paying or not."),
+    )
     is_capital_source_provider = models.BooleanField(
         default=False,
         help_text=_("If the user provides a capital source or not."),
