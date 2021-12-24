@@ -189,9 +189,22 @@ class PastDueList(LoginRequiredMixin, ShowAmortizationContextMixin, ListView):
     Displays a list of amortization that are past due.
     """
 
-    queryset = Amortization.objects.filter(
-        due_date__lte=timezone.now().date(),
-        paid_date__isnull=True,
+    queryset = (
+        Amortization.objects.select_related(
+            "loan",
+            "loan__borrower",
+        )
+        .prefetch_related(
+            "loan__sources",
+            "loan__sources__capital_source",
+        )
+        .filter(
+            due_date__lte=timezone.now().date(),
+            paid_date__isnull=True,
+        )
+        .exclude(
+            loan__borrower__is_borrower_active=False,
+        )
     )
     template_name = "lending/amortization/past_due.html"
     context_object_name = "amortizations"
@@ -212,12 +225,25 @@ class UpcomingDueList(LoginRequiredMixin, ShowAmortizationContextMixin, ListView
     Displays a list of amortization that are due in the next 7 days.
     """
 
-    queryset = Amortization.objects.filter(
-        due_date__range=(
-            timezone.now().date() + relativedelta(days=1),
-            timezone.now().date() + relativedelta(days=7),
-        ),
-        paid_date__isnull=True,
+    queryset = (
+        Amortization.objects.select_related(
+            "loan",
+            "loan__borrower",
+        )
+        .prefetch_related(
+            "loan__sources",
+            "loan__sources__capital_source",
+        )
+        .filter(
+            due_date__range=(
+                timezone.now().date() + relativedelta(days=1),
+                timezone.now().date() + relativedelta(days=7),
+            ),
+            paid_date__isnull=True,
+        )
+        .exclude(
+            loan__borrower__is_borrower_active=False,
+        )
     )
     template_name = "lending/amortization/upcoming_due.html"
     context_object_name = "amortizations"
