@@ -41,6 +41,7 @@ class EarningsGraph(View):
                 due_date__month=loan_date.month,
                 due_date__year=loan_date.year,
                 is_preterminated=False,
+                loan__borrower__is_borrower_active=True,
             ).aggregate(total_gained=Sum("amount_gained"))
 
             interest_data.append(amortizations["total_gained"])
@@ -49,6 +50,7 @@ class EarningsGraph(View):
                 ~Q(amort_type=Amortization.AMORTIZATION_TYPES.interest_only),
                 due_date__month=loan_date.month,
                 due_date__year=loan_date.year,
+                loan__borrower__is_borrower_active=True,
             ).distinct()
 
             receivable = (
@@ -56,6 +58,7 @@ class EarningsGraph(View):
                     loan__amortizations__in=principal_amortization,
                     capital_source__source=CapitalSource.SOURCES.savings,
                     capital_source__provider__isnull=True,
+                    loan__borrower__is_borrower_active=True,
                 )
                 .distinct()
                 .annotate(receivables=F("amount") / F("loan__term"))
