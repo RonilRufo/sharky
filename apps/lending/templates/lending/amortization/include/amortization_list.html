@@ -7,6 +7,7 @@
                 <th>Borrower</th>
             {% endif %}
             <th>Loan Date</th>
+            <th>Loan Amount</th>
             {% if request.user.is_superuser %}
                 <th>Loan Sources</th>
             {% endif %}
@@ -23,6 +24,7 @@
                     <td>{{ amortization.loan.borrower.get_full_name }}</td>
                 {% endif %}
                 <td>{{ amortization.loan.loan_date|date:"M d, Y" }}</td>
+                <td>{{ amortization.loan.amount|floatformat:0|intcomma }}</td>
                 {% if request.user.is_superuser %}
                     <td>
                         <ul>
